@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}
+NGA Routine Builder
+{% endblock %}
+
+{% block head %}
+{{ super() }} <!-- Retains Bootstrap styles -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='builder.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Beginning prompt to select Level and Event -->
+<div id="add-routine-table-container">
+    <div class="level-selection">
+        <h2>Choose a Level</h2>
+        <div class="level-grid">
+            <button class="level-button">Level 1</button>
+            <button class="level-button">Level 2</button>
+            <button class="level-button">Level 3</button>
+            <button class="level-button">Level 4</button>
+            <button class="level-button">Level 5</button>
+            <button class="level-button">Level 6</button>
+            <button class="level-button">Level 7</button>
+            <button class="level-button">Level 8</button>
+            <button class="level-button">Level 9</button>
+            <button class="level-button">Level 10</button>
+        </div>
+    </div>
+
+    <div class="event-selection">
+        <h2>Choose an Event</h2>
+        <div class="event-grid">
+            <button class="event-button">FX</button>
+            <button class="event-button">PH</button>
+            <button class="event-button">SR</button>
+            <button class="event-button">VT</button>
+            <button class="event-button">PB</button>
+            <button class="event-button">HB</button>
+        </div>
+    </div>
+    <button id="submit-routine-request" style="display: none;">Submit</button>
+</div>
+
+<div id="grid">
+    <div class="item" id="item-1">
+        <!-- Routine tables are appended to this div -->
+        <div id="routine-tables-container" class="vertical"></div>
+    </div>
+    <!-- Skill boxes -->
+    <div class="item" id="skill-box">
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Search..." onkeyup="searchTable()">
+        </div>
+
+        <!-- The BIG skills table -->
+        <div id="large-table-container"></div>
+    </div>
+</div>
+
+<div class="overlay" id="popupOverlay" style="display: none;">
+    <div class="popup">
+        <button class="close-btn" id="closePopup">&times;</button>
+        <form id="routineForm" class="row g-3 needs-validation" novalidate>
+            <div class="col-md-4">
+                <label for="validationCustom01" class="form-label">Routine Name</label>
+                <input type="text" class="form-control" id="routineName" value="" required>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="validationCustom04" class="form-label">Level</label>
+                <select class="form-select" id="routineLevel" required>
+                    <option selected disabled value="">Choose...</option>
+                    {% for level in range(1, 11) %}
+                    <option>Level {{ level }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">
+                    Please select a valid level.
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="validationCustom04" class="form-label">Event</label>
+                <select class="form-select" id="routineEvent" required>
+                    <option selected disabled value="">Choose...</option>
+                    <option>FX</option>
+                    <option>PH</option>
+                    <option>Mushroom</option>
+                    <option>SR</option>
+                    <option>VT</option>
+                    <option>PB</option>
+                    <option>HB</option>
+                </select>
+                <div class="invalid-feedback">
+                    Please select a valid event.
+                </div>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">Submit form</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }} <!-- Retains Bootstrap scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="{{ url_for('static', filename='builder.js') }}"></script>
+{% endblock %}

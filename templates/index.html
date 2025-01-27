@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Gymnastics Clips!</h1>
+    {% if current_user.is_authenticated %}
+        <p>You are logged in as {{ current_user.username }}</p>
+    {% else %}
+        <p>Please <a href="{{ url_for('login') }}">login</a> or <a href="{{ url_for('register') }}">register</a></p>
+    {% endif %}
+
+    <a href=" {{url_for('build_routine')}}" class="btn btn-primary" >Create a new routine</a>
+    <button id="view-routines-button" class="btn btn-primary">View My Routines</button>
+    <div id="routines-container" style="margin-top: 20px;"></div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}

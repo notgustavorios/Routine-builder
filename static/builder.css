@@ -1,0 +1,333 @@
+/* Styles for the routine and skill tables */
+#routine-tables-container {
+    display: grid;
+    height: 100vh;
+}
+.dataTable {
+    height: 100vh; /* Take 100% of the viewport height */
+    overflow-y: auto; /* Allow vertical scrolling inside the table */
+}
+#routine-tables-container.vertical {
+    grid-template-columns: 1fr;
+}
+
+#routine-tables-container.grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+.routine-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+}
+.routine-table tbody {
+    display: block;
+    min-height: 100%;
+    max-height: 100%;
+    overflow-y: scroll;
+}
+.routine-table tr{
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    height: 6vh;
+    
+}
+.routine-table td {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 8px;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.routine-table .add-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+}
+
+#add-routine-table-container {
+    border: 1px solid black;
+    background-color: blue;
+    color: white;
+    text-align: center;
+}
+
+.add-row {
+    background-color: blue;
+    height: 10%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.header-row {
+    background-color: blue;
+    color: white;
+    height: 10%;
+}
+#subheader {
+    height: 10%;
+}
+th,
+td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+    width: calc(100% / 3);
+}
+
+.skill-even-row {
+    background-color: white;
+    color: black; 
+    
+}
+
+.skill-odd-row {
+    background-color: lightblue;
+    color: black;
+    
+}
+
+#skill-table-container {
+    display: none;
+    padding: 1%;
+}
+
+.skill-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.skill-entry:hover {
+    background-color: rgb(135, 135, 135);
+    cursor: pointer;
+}
+
+#floor {
+    display: none;
+}
+
+#pommel mushroom rings vault pbars highbar {
+    display: none;
+}
+
+.skill-table th,
+.skill-table td {
+    border: 1px solid black;
+    text-align: center;
+}
+
+.skill-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+.skill-table tr:first-child th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.skill-table td {
+    background-color: #f8f9fa;
+}
+
+.skill-button {
+    margin-bottom: 20px;
+}
+
+.buttons-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}
+
+.circle-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: blue;
+    margin-right: 10px;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    color: white;
+}
+
+.circle-button:hover {
+    opacity: 0.8;
+}
+
+
+
+#add-routine-table-container button {
+    border: 1px solid white;
+    color: white;
+    font-size: larger;
+    background-color: blue;
+}
+
+#add-routine-table-container button:hover {
+    cursor: pointer;
+    background-color: lightblue;
+}
+
+#add-routine-table-container button.active {
+    background-color: #4CAF50 !important;
+    color: white;
+}
+
+.event-grid {
+    margin-bottom: 1%;
+}
+
+#submit-routine-request {
+    margin-bottom: 1%;
+}
+
+@media print {
+
+    /* Ensure background and text are black and white */
+    body {
+        background-color: white !important;
+        color: black !important;
+    }
+
+    .colorful-element {
+        color: black !important;
+        background-color: white !important;
+    }
+
+    /* Additional styles for other elements can be added here */
+    /* Remove any other colorful styles */
+    * {
+        color: black !important;
+        background-color: white !important;
+        border-color: black !important;
+    }
+}
+
+
+.title {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f0f0f0;
+    border: 1px solid black;
+}
+
+#grid {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    padding: 0;
+    justify-content: center;
+}
+
+.item {
+    padding: 0px;
+    overflow-y: hidden;
+    flex: 1;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#skill-box {
+    display: none;
+    position: relative;
+    overflow-y: scroll;
+    max-height: 100vh;
+}
+
+#close-button {
+    position: fixed;
+    bottom: 1px;
+    margin-left: auto;
+    /* Push the button to the right */
+    background-color: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    /* Ensure it stays on top of other content */
+}
+
+#close-button:hover {
+    background-color: darkred;
+}
+
+.search-container {
+    margin-bottom: 20px;
+}
+
+#searchBar {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.context-menu {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.context-menu li {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.context-menu li:hover {
+    background-color: #eee;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    height: 30vh;
+    width: 50vw;
+    text-align: center;
+}
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #aaa;
+}
+.close-btn:hover {
+    color: #555;
+}
