@@ -20,6 +20,7 @@ document.getElementById("view-routines-button").addEventListener("click", functi
             routinesTable.innerHTML = `
                 <thead>
                     <tr>
+                        <th>Name</th>
                         <th>Level</th>
                         <th>Event</th>
                         <th>Created At</th>
@@ -31,6 +32,7 @@ document.getElementById("view-routines-button").addEventListener("click", functi
                         .map(
                             (routine) => `
                         <tr>
+                            <td>${routine.name}</td>
                             <td>${routine.level}</td>
                             <td>${routine.event}</td>
                             <td>${new Date(routine.created_at).toLocaleString()}</td>

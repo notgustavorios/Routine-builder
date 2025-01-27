@@ -1,37 +1,42 @@
 function searchTable() {
-    const input = document.getElementById('searchBar').value.toLowerCase();
-    const table = document.getElementById('dataTable');
-    const rows = Array.from(table.getElementsByTagName('tr')).slice(1); // Exclude the header row
+    const input = document.getElementById("searchBar").value.toLowerCase();
+    const table = document.getElementById("dataTable");
+    const rows = Array.from(table.getElementsByTagName("tr")).slice(1); // Exclude the header row
 
     // If input is empty, display all rows
-    if (input === '') {
-        rows.forEach(row => row.style.display = '');
+    if (input === "") {
+        rows.forEach((row) => (row.style.display = ""));
         return;
     }
 
     // Filter rows based on the input
-    const filteredRows = rows.filter(row => {
-        const cells = row.getElementsByTagName('td');
-        return Array.from(cells).some(cell => cell.textContent.toLowerCase().includes(input));
+    const filteredRows = rows.filter((row) => {
+        const cells = row.getElementsByTagName("td");
+        return Array.from(cells).some((cell) =>
+            cell.textContent.toLowerCase().includes(input)
+        );
     });
 
     // Sort rows by the closest match (simplified to sort by number of matched cells)
     filteredRows.sort((a, b) => {
-        const aMatchCount = Array.from(a.getElementsByTagName('td')).filter(cell => cell.textContent.toLowerCase().includes(input)).length;
-        const bMatchCount = Array.from(b.getElementsByTagName('td')).filter(cell => cell.textContent.toLowerCase().includes(input)).length;
+        const aMatchCount = Array.from(a.getElementsByTagName("td")).filter(
+            (cell) => cell.textContent.toLowerCase().includes(input)
+        ).length;
+        const bMatchCount = Array.from(b.getElementsByTagName("td")).filter(
+            (cell) => cell.textContent.toLowerCase().includes(input)
+        ).length;
         return bMatchCount - aMatchCount;
     });
 
     // Hide all rows initially
-    rows.forEach(row => row.style.display = 'none');
+    rows.forEach((row) => (row.style.display = "none"));
 
     // Display the closest three matches
-    filteredRows.slice(0, 3).forEach(row => row.style.display = '');
+    filteredRows.slice(0, 3).forEach((row) => (row.style.display = ""));
 
     // Display the rest of the rows after the closest three
-    filteredRows.slice(3).forEach(row => row.style.display = '');
+    filteredRows.slice(3).forEach((row) => (row.style.display = ""));
 }
-
 
 const EP = 8.0;
 
@@ -48,7 +53,11 @@ function addSkill(_name, _difficulty, _elementGroup) {
     // Check if there are empty rows and fill them first
     currentRoutineTable.find("tr:not(.header-row)").each(function () {
         const cells = $(this).find("td");
-        if (cells.eq(0).text() === "" && cells.eq(1).text() === "" && cells.eq(2).text() === "") {
+        if (
+            cells.eq(0).text() === "" &&
+            cells.eq(1).text() === "" &&
+            cells.eq(2).text() === ""
+        ) {
             cells.eq(0).text(_name);
             cells.eq(1).text(_difficulty);
             cells.eq(2).text(_elementGroup);
@@ -68,7 +77,6 @@ function addSkill(_name, _difficulty, _elementGroup) {
         currentRoutineTable.find(".add-row").before(newRow);
     }
 }
-
 
 // Function to convert an integer to a Roman numeral
 function toRomanNumeral(integer) {
@@ -115,7 +123,12 @@ function display_score(routineTable, execution, difficulty, scoreString) {
             "<tr class='" +
             scoreClass +
             "'><td colspan='3'>" +
-            "Start Value: " + sv + " Execution: " + execution + " Difficulty: " + difficulty +
+            "Start Value: " +
+            sv +
+            " Execution: " +
+            execution +
+            " Difficulty: " +
+            difficulty +
             "</td></tr>"
         );
     } else {
@@ -127,7 +140,12 @@ function display_score(routineTable, execution, difficulty, scoreString) {
             .find("td")
             .attr("colspan", "3")
             .html(
-                "Start Value: " + sv + " Execution: " + execution + " Difficulty: " + difficulty
+                "Start Value: " +
+                sv +
+                " Execution: " +
+                execution +
+                " Difficulty: " +
+                difficulty
             );
     }
 }
@@ -142,7 +160,7 @@ const ELEMENT_GROUPS = {
     7: 4,
     8: 4,
     9: 4,
-    10: 4
+    10: 4,
 };
 
 const SUPERSKILLS = {
@@ -155,7 +173,7 @@ const SUPERSKILLS = {
     7: 3,
     8: 2,
     9: 1,
-    10: 0
+    10: 0,
 };
 
 const EXERCISE_PRESENTATION = {
@@ -168,7 +186,7 @@ const EXERCISE_PRESENTATION = {
     7: 8.0,
     8: 8.0,
     9: 8.0,
-    10: 7.5
+    10: 7.5,
 };
 
 function calculate_compulsory_NGA(routineTable, _level) {
@@ -191,7 +209,7 @@ function calculate_compulsory_NGA(routineTable, _level) {
         skills.push({
             name: skillName,
             difficulty: skillDifficulty,
-            elementGroup: skillElementGroup
+            elementGroup: skillElementGroup,
         });
     });
 
@@ -200,7 +218,7 @@ function calculate_compulsory_NGA(routineTable, _level) {
     console.log(topSkills);
 
     let elementGroups = new Set();
-    topSkills.forEach(skill => {
+    topSkills.forEach((skill) => {
         elementGroups.add(skill.elementGroup);
         difficulty += skill.difficulty;
     });
@@ -280,7 +298,7 @@ function calculate_compulsory_NGA(routineTable, _level) {
 function getTopRoutineSkills(skills) {
     // Remove duplicate skills
     let uniqueSkills = skills.reduce((acc, skill) => {
-        if (!acc.some(s => s.name === skill.name)) {
+        if (!acc.some((s) => s.name === skill.name)) {
             acc.push(skill);
         }
         return acc;
@@ -291,7 +309,7 @@ function getTopRoutineSkills(skills) {
 
     // Group skills by element group
     let elementGroups = [[], [], [], []];
-    uniqueSkills.forEach(skill => {
+    uniqueSkills.forEach((skill) => {
         elementGroups[skill.elementGroup - 1].push(skill);
     });
 
@@ -304,11 +322,13 @@ function getTopRoutineSkills(skills) {
     }
 
     // Flatten the remaining skills and sort again by difficulty value
-    let remainingSkills = [].concat(...elementGroups).sort((a, b) => b.difficulty - a.difficulty);
+    let remainingSkills = []
+        .concat(...elementGroups)
+        .sort((a, b) => b.difficulty - a.difficulty);
 
     // Add skills to topSkills until we have 8 skills in total
     for (let i = 0; topSkills.length < 8 && i < remainingSkills.length; i++) {
-        if (!topSkills.some(skill => skill.name === remainingSkills[i].name)) {
+        if (!topSkills.some((skill) => skill.name === remainingSkills[i].name)) {
             topSkills.push(remainingSkills[i]);
         }
     }
@@ -316,14 +336,11 @@ function getTopRoutineSkills(skills) {
     return topSkills.slice(0, 8); // Ensure we return exactly 8 skills
 }
 
-
-
 // Function to calculate score based on level
 function calculateScore(_event, _level, routineTable) {
     if (_level < 7) {
         calculate_compulsory_NGA(routineTable, _level);
-    }
-    else {
+    } else {
         calculate_optional_NGA(routineTable, _level);
     }
 }
@@ -408,10 +425,10 @@ function createRoutineTable(level, event) {
     attachEventListeners();
 }
 function getRoutineFormData() {
-    const routineName = document.getElementById('routineName').value.trim();
-    const level = document.getElementById('routineLevel').value;
-    const event = document.getElementById('routineEvent').value;
-    return {routineName, level, event};
+    const routineName = document.getElementById("routineName").value.trim();
+    const level = document.getElementById("routineLevel").value;
+    const event = document.getElementById("routineEvent").value;
+    return { routineName, level, event };
 }
 
 // Function to attach event listeners to buttons
@@ -521,7 +538,6 @@ function attachEventListeners() {
                 console.log("Row", index, $(row).html());
             });
 
-
             if (rowCount > 10) {
                 // Remove the last row if there are more than 10 skill rows
                 $skillRows.last().remove();
@@ -530,9 +546,10 @@ function attachEventListeners() {
                 let cleared = false;
                 for (let i = rowCount; i >= 0; i--) {
                     let $cells = $skillRows.eq(i).find("td");
-                    let isEmpty = $cells.filter(function () {
-                        return $(this).text().trim() !== "";
-                    }).length === 0;
+                    let isEmpty =
+                        $cells.filter(function () {
+                            return $(this).text().trim() !== "";
+                        }).length === 0;
 
                     if (!isEmpty) {
                         $cells.each(function () {
@@ -548,90 +565,26 @@ function attachEventListeners() {
             }
         });
 
-
-
     $(".calculate-score-button")
-    .off()
-    .on("click", function () {
-        // Find the routine-table this button belongs to
-        const routineTable = $(this).closest(".routine-table");
-
-        // Extract the level and event from the header
-        const headerText = routineTable.find(".header-row th").first().text().trim();
-        console.log("Header text:", headerText); // Debugging log
-
-        const match = headerText.match(/Level (\d+) (.+) Routine/);
-        if (!match) {
-            console.error("Failed to parse level and event from header text:", headerText);
-            return; // Stop execution if parsing fails
-        }
-
-        const level = parseInt(match[1], 10); // Extract the level
-        const event = match[2].trim(); // Extract the event
-        console.log("Parsed level:", level); // Debugging log
-        console.log("Parsed event:", event); // Debugging log
-
-        // Gather skill data
-        const skills = [];
-        routineTable.find("tr.skill-even-row, tr.skill-odd-row").each(function (index) {
-            const skillName = $(this).find("td").eq(0).text().trim();
-            const difficulty = parseFloat($(this).find("td").eq(1).text().trim()) || null;
-            const elementGroup = parseInt($(this).find("td").eq(2).text().trim()) || null;
-
-            if (skillName || difficulty || elementGroup) {
-                skills.push({
-                    name: skillName || null,
-                    value: difficulty || 0,
-                    element_group: elementGroup || 0,
-                    position: index + 1, // Maintain skill order
-                });
-            }
-        });
-
-        // Debugging log for skills
-        console.log("Skills collected:", skills);
-
-        // Prepare the data payload
-        const payload = {
-            level: parseInt(level),
-            event: event,
-            skills: skills,
-        };
-
-        // Send data to the API
-        $.ajax({
-            url: "/calculate-score", // Adjust the endpoint URL as needed
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(payload),
-            success: function (response) {
-                alert(
-                    "Exercise Presentation: " + response.exercisepresentation + "\n" +
-                    "Element Group Total: " + response.elementgrouptotal + "\n" +
-                    "Difficulty Total: " + response.difficultytotal + "\n" + 
-                    "Total Score: " + response.totalscore 
-                  );
-            },
-            error: function (error) {
-                alert("Error calculating score: " + error.responseJSON.error);
-            },
-        });
-    });
-
-    $(".save-routine-button")
         .off()
         .on("click", function () {
-        
             // Find the routine-table this button belongs to
             const routineTable = $(this).closest(".routine-table");
 
             // Extract the level and event from the header
-            const headerText = routineTable.find(".header-row th").first().text().trim();
+            const headerText = routineTable
+                .find(".header-row th")
+                .first()
+                .text()
+                .trim();
             console.log("Header text:", headerText); // Debugging log
 
             const match = headerText.match(/Level (\d+) (.+) Routine/);
             if (!match) {
-                console.error("Failed to parse level and event from header text:", headerText);
+                console.error(
+                    "Failed to parse level and event from header text:",
+                    headerText
+                );
                 return; // Stop execution if parsing fails
             }
 
@@ -642,48 +595,92 @@ function attachEventListeners() {
 
             // Gather skill data
             const skills = [];
-            routineTable.find("tr.skill-even-row, tr.skill-odd-row").each(function (index) {
-                const skillName = $(this).find("td").eq(0).text().trim();
-                const difficulty = parseFloat($(this).find("td").eq(1).text().trim()) || null;
-                const elementGroup = parseInt($(this).find("td").eq(2).text().trim()) || null;
+            routineTable
+                .find("tr.skill-even-row, tr.skill-odd-row")
+                .each(function (index) {
+                    const skillName = $(this).find("td").eq(0).text().trim();
+                    const difficulty =
+                        parseFloat($(this).find("td").eq(1).text().trim()) || null;
+                    const elementGroup =
+                        parseInt($(this).find("td").eq(2).text().trim()) || null;
 
-                if (skillName || difficulty || elementGroup) {
-                    skills.push({
-                        name: skillName || null,
-                        value: difficulty || 0,
-                        element_group: elementGroup || 0,
-                        position: index + 1, // Maintain skill order
-                    });
-                }
-            });
+                    if (skillName || difficulty || elementGroup) {
+                        skills.push({
+                            name: skillName || null,
+                            value: difficulty || 0,
+                            element_group: elementGroup || 0,
+                            position: index + 1, // Maintain skill order
+                        });
+                    }
+                });
 
             // Debugging log for skills
             console.log("Skills collected:", skills);
-    
+
             // Prepare the data payload
             const payload = {
-                name: routineName,
                 level: parseInt(level),
                 event: event,
                 skills: skills,
             };
-    
+
             // Send data to the API
             $.ajax({
-                url: "/save-routine", // Adjust the endpoint URL as needed
+                url: "/calculate-score", // Adjust the endpoint URL as needed
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify(payload),
                 success: function (response) {
-                    console.log("Routine saved successfully:", response);
-                    alert("Routine saved!");
+                    alert(
+                        "Exercise Presentation: " +
+                        response.exercisepresentation +
+                        "\n" +
+                        "Element Group Total: " +
+                        response.elementgrouptotal +
+                        "\n" +
+                        "Difficulty Total: " +
+                        response.difficultytotal +
+                        "\n" +
+                        "Total Score: " +
+                        response.totalscore
+                    );
                 },
-                error: function (xhr, status, error) {
-                    console.error("Error saving routine:", xhr.responseText);
-                    alert("Failed to save routine.");
+                error: function (error) {
+                    alert("Error calculating score: " + error.responseJSON.error);
                 },
             });
-    });
+        });
+
+    $(".save-routine-button")
+        .off()
+        .on("click", function () {
+            // find the routine table
+            const routineTable = $(this).closest(".routine-table");
+
+            // extract level and event from the header
+            const headerText = routineTable
+                .find(".header-row th")
+                .first()
+                .text()
+                .trim();
+            const match = headerText.match(/Level (\d+) (.+) Routine/);
+
+            if (!match) {
+                console.error("couldn't parse level and event. nice job.");
+                return;
+            }
+
+            const level = match[1];
+            const event = match[2].trim();
+
+            // auto-populate the form
+            $("#routineLevel").val(`Level ${level}`);
+            $("#routineEvent").val(event);
+
+            // show the popup
+            $("#popupOverlay").show();
+        });
+    // handle form submission
     
 
     $(document)
@@ -696,17 +693,77 @@ function attachEventListeners() {
             $("#routine-tables-container").show();
         });
 
-    document.getElementById('closePopup').addEventListener('click', function() {
-        document.getElementById('popupOverlay').style.display = 'none';
+    document.getElementById("closePopup").addEventListener("click", function () {
+        document.getElementById("popupOverlay").style.display = "none";
     });
 
-    document.getElementById('popupOverlay').addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.style.display = 'none';
-        }
-    });
+    document
+        .getElementById("popupOverlay")
+        .addEventListener("click", function (e) {
+            if (e.target === this) {
+                this.style.display = "none";
+            }
+        });
 }
 
+$("#routineForm").on("submit", function (e) {
+    e.preventDefault(); // stop your form from causing a page reload, rookie.
+
+    const routineName = $("#routineName").val().trim();
+    const level = $("#routineLevel").val().replace("Level ", ""); // parse out the number
+    const event = $("#routineEvent").val();
+
+    if (!routineName || !level || !event) {
+        alert("fill out the form properly, genius.");
+        return;
+    }
+
+    // collect skills
+    const skills = [];
+    $(".routine-table:visible")
+        .find("tr.skill-even-row, tr.skill-odd-row")
+        .each(function (index) {
+            const skillName = $(this).find("td").eq(0).text().trim();
+            const difficulty =
+                parseFloat($(this).find("td").eq(1).text().trim()) || null;
+            const elementGroup =
+                parseInt($(this).find("td").eq(2).text().trim()) || null;
+
+            if (skillName || difficulty || elementGroup) {
+                skills.push({
+                    name: skillName || null,
+                    value: difficulty || 0,
+                    element_group: elementGroup || 0,
+                    position: index + 1,
+                });
+            }
+        });
+
+    // prepare payload
+    const payload = {
+        name: routineName,
+        level: parseInt(level, 10),
+        event: event,
+        skills: skills,
+    };
+
+    // send the data
+    $.ajax({
+        url: "/save-routine",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        success: function (response) {
+            console.log("routine saved successfully:", response);
+            alert("routine saved!");
+            $("#popupOverlay").hide();
+        },
+        error: function (xhr, status, error) {
+            console.error("error saving routine:", xhr.responseText);
+            alert("failed to save routine.");
+        },
+    });
+});
 // Function to reset button colors
 function resetButtonColors() {
     $(".level-button").removeClass("active");
@@ -716,7 +773,7 @@ function resetButtonColors() {
     $("#submit-routine-request").hide();
 }
 
-// Toggle exploded view button 
+// Toggle exploded view button
 // document.getElementById('toggleButton').addEventListener('click', function () {
 //     const container = document.getElementById('routine-tables-container');
 //     container.classList.toggle('vertical');
@@ -724,33 +781,36 @@ function resetButtonColors() {
 // });
 
 function loadLargeDiv() {
-    fetch('/load-skills-table')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('large-table-container').innerHTML = data;
+    fetch("/load-skills-table")
+        .then((response) => response.text())
+        .then((data) => {
+            document.getElementById("large-table-container").innerHTML = data;
         })
-        .catch(error => console.error('Error loading the large table', error))
+        .catch((error) => console.error("Error loading the large table", error));
 }
 
 (function () {
-    'use strict'
+    "use strict";
 
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    var forms = document.querySelectorAll('.needs-validation')
+    var forms = document.querySelectorAll(".needs-validation");
 
     // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-            }
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener(
+            "submit",
+            function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
 
-            form.classList.add('was-validated')
-        }, false)
-        })
-    })()
+                form.classList.add("was-validated");
+            },
+            false
+        );
+    });
+})();
 
 $(document).ready(function () {
     console.log("JQuery loaded");
@@ -800,7 +860,7 @@ $(document).ready(function () {
                 selectedEvent == "PH" &&
                 (selectedLevel == "Level 4" || selectedLevel == "Level 5")
             ) {
-                createRoutineTable(selectedLevel, "Mushroom");     
+                createRoutineTable(selectedLevel, "Mushroom");
             } else {
                 createRoutineTable(selectedLevel, selectedEvent);
             }
@@ -821,10 +881,6 @@ $(document).ready(function () {
     //     }
     // });
 
-    
-
     attachEventListeners();
     loadLargeDiv();
 });
-
-

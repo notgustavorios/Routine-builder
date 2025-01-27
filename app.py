@@ -88,6 +88,27 @@ class Routine(db.Model):
             raise ValueError("Failed to delete the expected row. Check the position and skill.")
         db.session.commit()
 
+    def get_start_value(self, scoring_type):
+        scoring = next((s for s in self.scoring if s.scoring_type == scoring_type), None)
+        if not scoring:
+            raise ValueError(f"No start value found for scoring type: {scoring_type}")
+        return scoring.start_value
+
+class RoutineScoring(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    routine_id = db.Column(db.Integer, db.ForeignKey('routine.id'), nullable=False)
+    scoring_type = db.Column(db.String(20), nullable=False)  # usag or nga
+    start_value = db.Column(db.Float, nullable=False)
+
+    __table_args__ = (
+        db.UniqueConstraint('routine_id', 'scoring_type', name='unique_routine_scoring'),
+    )
+
+    routine = db.relationship('Routine', backref=db.backref('scoring', lazy=True))
+
+    def __repr__(self):
+        return f"<RoutineScoring {self.routine.name} ({self.scoring_type}) Start Value: {self.start_value}>"
+
 
 @login_manager.user_loader
 def load_user(id):
@@ -198,12 +219,6 @@ def save_routine():
 
 
 
-@app.route('/view-routines')
-@login_required
-def view_routines():
-    routines = Routine.query.filter_by(user_id=current_user.id).order_by(Routine.created_at.desc()).all()
-    return render_template('view_routines.html', routines=routines)
-
 # Example route to create a new routine
 @app.route('/create-routine', methods=['POST'])
 @login_required
@@ -250,6 +265,7 @@ def api_view_routines():
     routines_data = [
         {
             "id": routine.id,
+            "name": routine.name,
             "level": routine.level,
             "event": routine.skills.first().event,
             "created_at": routine.created_at.isoformat(),
@@ -299,6 +315,20 @@ SUPERSKILLS_ALLOWED = {
     10: 0,
 }
 
+SHORT_ROUTINE = {
+    9: 0.0,
+    8: 0.0,
+    7: 0.0,
+    6: 0.0,
+    5: 3.0,
+    4: 4.0,
+    3: 5.0,
+    2: 6.0,
+    1: 7.0,
+    0: 10.0
+}
+
+
 @app.route('/calculate-score', methods=['POST'])
 @login_required
 def calculate_score():
@@ -324,6 +354,9 @@ def calculate_score():
 
     difficulty_total = 0.0
     skill_bank = set()
+
+    NUM_SUPER_SKILLS = 0
+    
     for skill in skills:
     
         difficulty = skill['value']
@@ -338,8 +371,22 @@ def calculate_score():
             # Skills only count for value one time due to special repitition
             difficulty_total += difficulty
 
+            if difficulty == 0.0:
+                NUM_SUPER_SKILLS += 1
+        
         skill_bank.add(skill["name"])
     
+    # Short Routine
+    numSkills = (len(skill_bank) - NUM_SUPER_SKILLS)
+    if NUM_SUPER_SKILLS >= SUPERSKILLS_ALLOWED[level]:
+        NUM_SUPER_SKILLS = SUPERSKILLS_ALLOWED[level]
+    numSkills = numSkills + NUM_SUPER_SKILLS
+
+    print("Numer of counting skills for this level " + str(level) + " routine is: " + str(numSkills) + " skills")
+    print("Short Routine Deduction for only having " + str(numSkills) + " skills is -" + str(SHORT_ROUTINE[numSkills]))
+    total_score -= SHORT_ROUTINE[numSkills] # take short routine deduction
+
+
     element_group_total = 0.0
 
     for element_group, value in element_group_credit.items():

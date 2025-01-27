@@ -39,6 +39,7 @@ NGA Routine Builder
             <button class="event-button">HB</button>
         </div>
     </div>
+
     <button id="submit-routine-request" style="display: none;">Submit</button>
 </div>
 
@@ -64,14 +65,14 @@ NGA Routine Builder
         <form id="routineForm" class="row g-3 needs-validation" novalidate>
             <div class="col-md-4">
                 <label for="validationCustom01" class="form-label">Routine Name</label>
-                <input type="text" class="form-control" id="routineName" value="" required>
+                <input type="text" class="form-control validationCustom01" id="routineName" placeholder="Name this routine! Ex. Chris PH" value="" required>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
             </div>
             <div class="col-md-3">
                 <label for="validationCustom04" class="form-label">Level</label>
-                <select class="form-select" id="routineLevel" required>
+                <select class="form-select validationCustom04" id="routineLevel" required>
                     <option selected disabled value="">Choose...</option>
                     {% for level in range(1, 11) %}
                     <option>Level {{ level }}</option>
@@ -83,7 +84,7 @@ NGA Routine Builder
             </div>
             <div class="col-md-3">
                 <label for="validationCustom04" class="form-label">Event</label>
-                <select class="form-select" id="routineEvent" required>
+                <select class="form-select validationCustom04" id="routineEvent" required>
                     <option selected disabled value="">Choose...</option>
                     <option>FX</option>
                     <option>PH</option>
