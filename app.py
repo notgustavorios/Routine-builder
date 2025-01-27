@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gymnastics.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://u3o8ait0e7auoj:pb6de4e3f85f7daca8b5134a992c18e2e177ae6485f537a1b5173df42b28a7313@cb5ajfjosdpmil.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com:5432/d82gk852qieukc'
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
