@@ -1,0 +1,56 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.db
+*.sqlite
+*.sqlite3
+
+# Flask
+instance/
+*.log
+*.pot
+
+# Environment variables
+.env
+.venv/
+venv/
+env/
+venv.bak/
+
+# IDE files
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# pytest
+.cache
+
+# mypy
+.mypy_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# SQLAlchemy Migrations
+migrations/
+
+# Gunicorn logs
+gunicorn.*
+
+# Flask specific
+*.pid
+*.coverage
+
+# System files
+Thumbs.db
+ehthumbs.db
+
+# VS Code settings
+.vscode/
