@@ -54,3 +54,10 @@ ehthumbs.db
 
 # VS Code settings
 .vscode/
+
+# Database folder
+instance/
+
+__pycache__/
+*.pyc
+*.pyo
