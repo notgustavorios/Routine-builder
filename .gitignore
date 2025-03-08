@@ -61,3 +61,6 @@ instance/
 __pycache__/
 *.pyc
 *.pyo
+
+#Virtual environment
+gymnastics-clips/
