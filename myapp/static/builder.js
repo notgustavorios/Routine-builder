@@ -39,37 +39,20 @@ function searchTable() {
 }
 
 let currentRoutineTable = null;
+let editingRow = null; // Track which row is being edited
 
-// Function to add a skill row to the current routine table
 // Function to add a skill row to the current routine table
 function addSkill(_name, _difficulty, _elementGroup) {
-    let addedToExistingRow = false;
+    // Find the first empty row
+    const emptyRow = currentRoutineTable.find("tr.skill-odd-row, tr.skill-even-row").filter(function() {
+        return $(this).find('td').first().text().trim() === '';
+    }).first();
 
-    // Check if there are empty rows and fill them first
-    currentRoutineTable.find("tr:not(.header-row)").each(function () {
-        const cells = $(this).find("td");
-        if (
-            cells.eq(0).text() === "" &&
-            cells.eq(1).text() === "" &&
-            cells.eq(2).text() === ""
-        ) {
-            cells.eq(0).text(_name);
-            cells.eq(1).text(_difficulty);
-            cells.eq(2).text(_elementGroup);
-            addedToExistingRow = true;
-            return false; // Exit loop after filling the first empty row
-        }
-    });
-
-    // If no empty rows, add a new row at the end
-    if (!addedToExistingRow) {
-        const rowCount = currentRoutineTable.find("tr:not(.header-row)").length;
-        const oddOrEven = rowCount % 2 !== 0 ? "skill-even-row" : "skill-odd-row";
-        const newRow = $("<tr></tr>").addClass(oddOrEven);
-        newRow.append(`<td>${_name}</td>`);
-        newRow.append(`<td>${_difficulty}</td>`);
-        newRow.append(`<td>${_elementGroup}</td>`);
-        currentRoutineTable.find(".add-row").before(newRow);
+    // If we found an empty row, fill it
+    if (emptyRow.length > 0) {
+        emptyRow.find('td').eq(0).text(_name);
+        emptyRow.find('td').eq(1).text(_difficulty);
+        emptyRow.find('td').eq(2).text(_elementGroup);
     }
 }
 
@@ -165,6 +148,16 @@ function createRoutineTable(level, event) {
                             <td></td>
                             <td></td>
                             <td></td>
+                        </tr>
+                        <tr class="skill-even-row">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr class="skill-odd-row">
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>                          
                         <tr class="add-row">
                             <td>
@@ -190,6 +183,117 @@ function getRoutineFormData() {
     return { routineName, level, event };
 }
 
+// Function to create a context menu for skill editing
+function createContextMenu(x, y, row) {
+    // Remove any existing context menus
+    $('.context-menu').remove();
+    
+    // If we're currently editing and right-clicked on the same row, show cancel option
+    if (editingRow === row) {
+        const contextMenu = $('<div></div>')
+            .addClass('context-menu')
+            .css({
+                position: 'fixed',
+                left: x + 'px',
+                top: y + 'px',
+                zIndex: 1000
+            });
+        
+        const cancelItem = $('<div>Cancel Edit</div>')
+            .addClass('context-menu-item')
+            .click(function(e) {
+                e.stopPropagation();
+                $(editingRow).removeClass('editing-row');
+                editingRow = null;
+                $('.context-menu').remove();
+                $("#skill-box").hide();
+                $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+            });
+        
+        contextMenu.append(cancelItem);
+        $('body').append(contextMenu);
+        return;
+    }
+    
+    // Create and append the new context menu
+    const contextMenu = $('<div></div>')
+        .addClass('context-menu')
+        .css({
+            position: 'fixed',
+            left: x + 'px',
+            top: y + 'px',
+            zIndex: 1000
+        });
+    
+    const editItem = $('<div>Edit Skill</div>')
+        .addClass('context-menu-item')
+        .click(function(e) {
+            e.stopPropagation();
+            // Remove highlight from any previously edited row
+            $('.editing-row').removeClass('editing-row');
+            // Add highlight to current row
+            $(row).addClass('editing-row');
+            editingRow = row;
+            currentRoutineTable = $(row).closest('table');
+            // Show skill selection interface
+            $("#skill-table-container").show();
+            
+            // Show appropriate skill table based on the event
+            const headerText = currentRoutineTable.find("th").first().text();
+            const event = headerText.split(" ")[2];
+            
+            // Hide all skill tables first
+            $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+            
+            // Show the appropriate skill table
+            switch(event) {
+                case "FX": $("#floor").show(); break;
+                case "PH": $("#pommel").show(); break;
+                case "Mushroom": $("#Mushroom").show(); break;
+                case "SR": $("#rings").show(); break;
+                case "VT": $("#vault").show(); break;
+                case "PB": $("#pbars").show(); break;
+                case "HB": $("#highbar").show(); break;
+            }
+            
+            $("#skill-box").show();
+            $(".item").css("flex", "1");
+            $('.context-menu').remove();
+        });
+
+    const deleteItem = $('<div>Delete Skill</div>')
+        .addClass('context-menu-item')
+        .hover(
+            function() {
+                // Mouse enter
+                $(row).addClass('delete-highlight');
+            },
+            function() {
+                // Mouse leave
+                $(row).removeClass('delete-highlight');
+            }
+        )
+        .click(function(e) {
+            e.stopPropagation();
+            // Clear the contents of the row
+            $(row).find('td').each(function() {
+                $(this).text('');
+            });
+            $(row).removeClass('delete-highlight');
+            $('.context-menu').remove();
+        });
+    
+    contextMenu.append(editItem);
+    contextMenu.append(deleteItem);
+    $('body').append(contextMenu);
+    
+    // Close context menu when clicking outside
+    $(document).one('click', function() {
+        $('.context-menu').remove();
+        $(row).removeClass('delete-highlight'); // Remove delete highlight if menu is closed
+    });
+}
+
 // Function to attach event listeners to buttons
 function attachEventListeners() {
     $(".add-skill-button")
@@ -198,7 +302,7 @@ function attachEventListeners() {
             currentRoutineTable = $(this).closest("table");
             // $("#routine-tables-container").hide();
             $("#skill-table-container").show();
-
+            
             const table = $(this).closest(".routine-table");
             const headerText = table.find("th").first().text();
             const event = headerText.split(" ")[2]; // Assuming the format is "Level Event Routine"
@@ -288,39 +392,19 @@ function attachEventListeners() {
     $(".delete-skill-button")
         .off()
         .on("click", function () {
-            var $table = $(this).closest("table");
-            var $skillRows = $table.find("tr.skill-odd-row, tr.skill-even-row");
-            var rowCount = $skillRows.length;
+            // Find the last non-empty row
+            const lastFilledRow = currentRoutineTable
+                .find("tr.skill-odd-row, tr.skill-even-row")
+                .filter(function() {
+                    return $(this).find('td').first().text().trim() !== '';
+                })
+                .last();
 
-            console.log("Total skill rows:", rowCount);
-            $skillRows.each(function (index, row) {
-                console.log("Row", index, $(row).html());
-            });
-
-            if (rowCount > 10) {
-                // Remove the last row if there are more than 10 skill rows
-                $skillRows.last().remove();
-            } else {
-                // Clear the contents of the last non-empty row
-                let cleared = false;
-                for (let i = rowCount; i >= 0; i--) {
-                    let $cells = $skillRows.eq(i).find("td");
-                    let isEmpty =
-                        $cells.filter(function () {
-                            return $(this).text().trim() !== "";
-                        }).length === 0;
-
-                    if (!isEmpty) {
-                        $cells.each(function () {
-                            $(this).text("");
-                        });
-                        cleared = true;
-                        break;
-                    }
-                }
-                if (!cleared) {
-                    console.log("No row to clear");
-                }
+            // Only clear if we found a row with content
+            if (lastFilledRow.length > 0) {
+                lastFilledRow.find('td').each(function() {
+                    $(this).text('');
+                });
             }
         });
 
@@ -442,15 +526,36 @@ function attachEventListeners() {
     // handle form submission
     
 
-    $(document)
-        .off("click", ".skill-entry")
-        .on("click", ".skill-entry", function () {
-            const skillName = $(this).find("td").eq(0).text();
-            const skillDifficulty = $(this).find("td").eq(1).text();
-            const skillElementGroup = $(this).find("td").eq(2).text();
+    // Remove any existing context menu event handlers
+    $(document).off('contextmenu', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
+    
+    // Add right-click event handler to skill rows
+    $(document).on('contextmenu', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row', function(e) {
+        e.preventDefault(); // Prevent default right-click menu
+        const skillText = $(this).find('td').first().text().trim();
+        if (skillText !== '') { // Only show context menu if row has a skill
+            createContextMenu(e.clientX, e.clientY, this);
+        }
+    });
+
+    // Modify the skill-entry click handler to handle both adding and editing
+    $(document).off('click', '.skill-entry').on('click', '.skill-entry', function() {
+        const skillName = $(this).find('td').eq(0).text();
+        const skillDifficulty = $(this).find('td').eq(1).text();
+        const skillElementGroup = $(this).find('td').eq(2).text();
+        
+        if (editingRow) {
+            // If we're editing, update the existing row
+            $(editingRow).find('td').eq(0).text(skillName);
+            $(editingRow).find('td').eq(1).text(skillDifficulty);
+            $(editingRow).find('td').eq(2).text(skillElementGroup);
+            $(editingRow).removeClass('editing-row'); // Remove highlight
+            editingRow = null; // Reset editing state
+        } else {
+            // Otherwise add as a new skill
             addSkill(skillName, skillDifficulty, skillElementGroup);
-            $("#routine-tables-container").show();
-        });
+        }
+    });
 
     document.getElementById("closePopup").addEventListener("click", function () {
         document.getElementById("popupOverlay").style.display = "none";
@@ -463,6 +568,37 @@ function attachEventListeners() {
                 this.style.display = "none";
             }
         });
+
+    // Add click handler for skill rows
+    $(document).off('click', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row').on('click', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row', function(e) {
+        // Don't trigger if clicking on a row that already has a skill
+        if ($(this).find('td').first().text().trim() !== '') {
+            return;
+        }
+        
+        currentRoutineTable = $(this).closest('table');
+        $("#skill-table-container").show();
+
+        const headerText = $(this).closest('.routine-table').find("th").first().text();
+        const event = headerText.split(" ")[2];
+        
+        // Hide all skill tables first
+        $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+        
+        // Show the appropriate skill table
+        switch(event) {
+            case "FX": $("#floor").show(); break;
+            case "PH": $("#pommel").show(); break;
+            case "Mushroom": $("#Mushroom").show(); break;
+            case "SR": $("#rings").show(); break;
+            case "VT": $("#vault").show(); break;
+            case "PB": $("#pbars").show(); break;
+            case "HB": $("#highbar").show(); break;
+        }
+        
+        $("#skill-box").show();
+        $(".item").css("flex", "1");
+    });
 }
 
 $("#routineForm").on("submit", function (e) {
@@ -532,20 +668,22 @@ function resetButtonColors() {
     $("#submit-routine-request").hide();
 }
 
-// Toggle exploded view button
-// document.getElementById('toggleButton').addEventListener('click', function () {
-//     const container = document.getElementById('routine-tables-container');
-//     container.classList.toggle('vertical');
-//     container.classList.toggle('grid');
-// });
-
 function loadLargeDiv() {
     fetch("/routines/skills-table")
-        .then((response) => response.text())
-        .then((data) => {
-            document.getElementById("large-table-container").innerHTML = data;
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
         })
-        .catch((error) => console.error("Error loading the large table", error));
+        .then((data) => {
+            if (data) {
+                document.getElementById("large-table-container").innerHTML = data;
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading the large table:", error);
+        });
 }
 
 (function () {
@@ -573,13 +711,6 @@ function loadLargeDiv() {
 
 $(document).ready(function () {
     console.log("JQuery loaded");
-
-    // Event listener for add routine button
-    // $("#add-routine-button").on("click", function () {
-    //     $("#routine-tables-container").hide();
-    //     $("#skill-table-container").hide();
-    //     $("#add-routine-table-container").show();
-    // });
 
     let selectedLevel = null;
     let selectedEvent = null;
