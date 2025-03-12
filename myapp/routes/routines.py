@@ -4,14 +4,17 @@ from myapp.models import db
 from myapp.models.routine import Routine, routine_skills
 from myapp.models.skill import Skill
 from myapp.routes import routines_bp
+from myapp.session_manager import check_session_timeout
 
 @routines_bp.route('/build')
 @login_required
+@check_session_timeout
 def build_routine():
     return render_template('builder.html')
 
 @routines_bp.route('/save', methods=['POST'])
 @login_required
+@check_session_timeout
 def save_routine():
     data = request.get_json()
     name = data.get('name')
@@ -61,6 +64,7 @@ def save_routine():
 
 @routines_bp.route('/create', methods=['POST'])
 @login_required
+@check_session_timeout
 def create_routine():
     level = request.form.get('level', type=int)
     if not level:
@@ -72,9 +76,9 @@ def create_routine():
     db.session.commit()
     return redirect(url_for('routines.edit', routine_id=routine.id))
 
-
 @routines_bp.route('/add-skill/<int:routine_id>', methods=['POST'])
 @login_required
+@check_session_timeout
 def add_skill_to_routine(routine_id):
     routine = Routine.query.get_or_404(routine_id)
     if routine.user_id != current_user.id:
@@ -99,6 +103,7 @@ def load_skills_table():
 
 @routines_bp.route('/view', methods=['GET'])
 @login_required
+@check_session_timeout
 def api_view_routines():
     routines = Routine.query.filter_by(user_id=current_user.id).order_by(Routine.created_at.desc()).all()
     routines_data = [
@@ -115,6 +120,7 @@ def api_view_routines():
 
 @routines_bp.route('/view/<int:routine_id>')
 @login_required
+@check_session_timeout
 def view_routine(routine_id):
     routine = Routine.query.get_or_404(routine_id)
 
@@ -134,6 +140,7 @@ def view_routine(routine_id):
 
 @routines_bp.route('/edit/<int:routine_id>')
 @login_required
+@check_session_timeout
 def edit_routine(routine_id):
     routine = Routine.query.get_or_404(routine_id)
 
@@ -153,6 +160,7 @@ def edit_routine(routine_id):
 
 @routines_bp.route('/delete/<int:routine_id>', methods=['POST'])
 @login_required
+@check_session_timeout
 def delete_routine(routine_id):
     routine = Routine.query.get_or_404(routine_id)
     

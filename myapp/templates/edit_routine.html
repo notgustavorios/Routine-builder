@@ -16,7 +16,7 @@ NGA Routine Builder
             <div id="routine-tables-container" class="vertical">
                 <table class="routine-table">
                     <tr class="header-row">
-                        <th colspan="3"> Level {{ level }} {{ event }} Routine</th>
+                        <th colspan="3">Level {{ level }} {{ event }} Routine</th>
                     </tr>
                     <tr class="header-row" id="subheader">
                         <th>Skills</th>
@@ -58,9 +58,10 @@ NGA Routine Builder
             <div class="search-container">
                 <input type="text" id="searchBar" placeholder="Search..." onkeyup="searchTable()">
             </div>
-
             <!-- The BIG skills table -->
-            <div id="large-table-container"></div>
+            <div id="large-table-container">
+                <button id="close-button" class="button">Close</button>
+            </div>
         </div>
     </div>
 
@@ -121,8 +122,6 @@ NGA Routine Builder
     <script>
         // Attatch event listeners
         attachEventListeners();
-        loadLargeDiv();
     </script>
-    
 {% endblock %}
 

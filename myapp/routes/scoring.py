@@ -8,9 +8,11 @@ from myapp.services.scoring import (
     generate_summary
 )
 from myapp.constants import EXERCISE_PRESENTATION
+from myapp.session_manager import check_session_timeout
 
 @scoring_bp.route('/calculate', methods=['POST'])
 @login_required
+@check_session_timeout
 def calculate_score():
     # Get and validate input data
     data = request.get_json()

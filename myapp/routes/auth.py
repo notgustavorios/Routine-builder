@@ -1,11 +1,14 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from myapp.models.user import User
 from myapp.models import db
 from myapp.routes import auth_bp
+from myapp.session_manager import check_session_timeout
+from datetime import datetime
 
 @auth_bp.route('/')
 @login_required
+@check_session_timeout
 def index():
     return render_template('index.html')
 
@@ -40,6 +43,10 @@ def login():
         user = User.query.filter_by(username=request.form['username']).first()
         if user and user.check_password(request.form['password']):
             login_user(user)
+            # Initialize session timeout settings
+            session['last_activity'] = datetime.utcnow().isoformat()
+            session['session_lifetime'] = current_app.config['PERMANENT_SESSION_LIFETIME']
+            session.permanent = True
             flash('Logged in successfully')
             return redirect(url_for('auth.index'))
         else:
@@ -49,6 +56,9 @@ def login():
 @auth_bp.route('/logout')
 @login_required
 def logout():
+    # Clear session data
+    session.pop('last_activity', None)
+    session.pop('session_lifetime', None)
     logout_user()
     flash('Logged out successfully')
     return redirect(url_for('auth.login'))

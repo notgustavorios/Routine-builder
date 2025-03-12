@@ -277,23 +277,30 @@ td {
 }
 
 .context-menu {
-    display: none;
-    position: absolute;
-    background-color: white;
+    background: white;
     border: 1px solid #ccc;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    border-radius: 4px;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    min-width: 120px;
 }
 
-.context-menu li {
+.context-menu-item {
     padding: 8px 12px;
     cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: background-color 0.2s;
 }
 
-.context-menu li:hover {
-    background-color: #eee;
+.context-menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+/* Make sure skill rows show a pointer cursor to indicate they're interactive */
+.routine-table tr.skill-odd-row td,
+.routine-table tr.skill-even-row td {
+    cursor: pointer;
 }
 
 .overlay {
@@ -330,4 +337,25 @@ td {
 }
 .close-btn:hover {
     color: #555;
+}
+
+/* Style for highlighting the row being edited */
+@keyframes blinkingHighlight {
+    0% { background-color: #fff9c4; }
+    50% { background-color: #fff; }
+    100% { background-color: #fff9c4; }
+}
+
+.editing-row {
+    animation: blinkingHighlight 1s ease-in-out infinite !important;
+}
+
+@keyframes deleteHighlight {
+    0% { background-color: #ffebee; }
+    50% { background-color: #ffcdd2; }
+    100% { background-color: #ffebee; }
+}
+
+.delete-highlight {
+    animation: deleteHighlight 1s ease-in-out infinite !important;
 }

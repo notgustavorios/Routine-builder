@@ -37,7 +37,6 @@ document.getElementById("view-routines-button").addEventListener("click", functi
                             <td>${routine.event}</td>
                             <td>${new Date(routine.created_at).toLocaleString()}</td>
                             <td>
-                                <button class="btn btn-info view-routine-details" data-id="${routine.id}" data-level="${routine.level}" data-event="${routine.event}">View</button>
                                 <button class="btn btn-success edit-routine" data-id="${routine.id}" data-level="${routine.level}" data-event="${routine.event}"">Edit</button>
                                 <button class="btn btn-danger delete-routine" data-id="${routine.id}">Delete</button>
                             </td>
@@ -49,16 +48,6 @@ document.getElementById("view-routines-button").addEventListener("click", functi
             `;
 
             routinesContainer.appendChild(routinesTable);
-
-            // Add event listeners for the "View" buttons
-            document.querySelectorAll(".view-routine-details").forEach((button) => {
-                button.addEventListener("click", function () {
-                    const routineId = this.getAttribute("data-id");
-                    const routineLevel = this.getAttribute("data-level");
-                    const routineEvent = this.getAttribute("data-event");
-                    window.location.href = `/routines/view/${routineId}?level=${routineLevel}&event=${routineEvent}`;
-                });
-            });
 
             // Add event listeners for the "Edit" button
             document.querySelectorAll(".edit-routine").forEach((button) => {
