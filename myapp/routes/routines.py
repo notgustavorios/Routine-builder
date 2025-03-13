@@ -118,6 +118,12 @@ def api_view_routines():
     ]
     return jsonify({"routines": routines_data})
 
+@routines_bp.route('/list', methods=['GET'])
+@login_required
+@check_session_timeout
+def view_routines():
+    return render_template('view_routines.html')
+
 @routines_bp.route('/view/<int:routine_id>')
 @login_required
 @check_session_timeout

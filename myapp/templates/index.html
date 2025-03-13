@@ -10,8 +10,8 @@
         <p>Please <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a></p>
     {% endif %}
 
-    <a href=" {{url_for('routines.build_routine')}}" class="btn btn-primary" >Create a new routine</a>
-    <button id="view-routines-button" class="btn btn-primary">View My Routines</button>
+    <a href="{{ url_for('routines.build_routine') }}" class="btn btn-primary">Create a new routine</a>
+    <a href="{{ url_for('routines.view_routines') }}" class="btn btn-primary">View My Routines</a>
     <div id="routines-container" style="margin-top: 20px;"></div>
 {% endblock %}
 

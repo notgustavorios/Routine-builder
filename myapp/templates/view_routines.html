@@ -1,4 +1,48 @@
-document.getElementById("view-routines-button").addEventListener("click", function () {
+{% extends "base.html" %}
+
+{% block title %}View Routines{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style>
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.loading-text {
+    margin-left: 1rem;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>My Routines</h1>
+<div id="loading-indicator" class="loading-spinner">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <span class="loading-text">Loading routines...</span>
+</div>
+<div id="routines-container" style="margin-top: 20px; display: none;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const routinesContainer = document.getElementById("routines-container");
+
     fetch("/routines/view")
         .then((response) => {
             if (!response.ok) {
@@ -7,7 +51,10 @@ document.getElementById("view-routines-button").addEventListener("click", functi
             return response.json();
         })
         .then((data) => {
-            const routinesContainer = document.getElementById("routines-container");
+            // Hide loading indicator and show container
+            loadingIndicator.style.display = 'none';
+            routinesContainer.style.display = 'block';
+            
             routinesContainer.innerHTML = ""; // Clear any existing content
 
             if (data.routines.length === 0) {
@@ -37,7 +84,7 @@ document.getElementById("view-routines-button").addEventListener("click", functi
                             <td>${routine.event}</td>
                             <td>${new Date(routine.created_at).toLocaleString()}</td>
                             <td>
-                                <button class="btn btn-success edit-routine" data-id="${routine.id}" data-level="${routine.level}" data-event="${routine.event}"">Edit</button>
+                                <button class="btn btn-success edit-routine" data-id="${routine.id}" data-level="${routine.level}" data-event="${routine.event}">Edit</button>
                                 <button class="btn btn-danger delete-routine" data-id="${routine.id}">Delete</button>
                             </td>
                         </tr>
@@ -84,7 +131,17 @@ document.getElementById("view-routines-button").addEventListener("click", functi
             });
         })
         .catch((error) => {
+            // Hide loading indicator and show error
+            loadingIndicator.style.display = 'none';
+            routinesContainer.style.display = 'block';
+            
             console.error("Error fetching routines:", error);
-            alert("An error occurred while fetching routines.");
+            routinesContainer.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    An error occurred while fetching routines. Please try again later.
+                </div>
+            `;
         });
 });
+</script>
+{% endblock %} 
