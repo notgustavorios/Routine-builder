@@ -9,14 +9,16 @@
             <h2>Profile Settings</h2>
             <div class="card mb-4">
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" id="profile-form">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required pattern="^[a-zA-Z0-9_-]{3,30}$">
+                            <div class="invalid-feedback">Username must be 3-30 characters long and can only contain letters, numbers, underscores, and hyphens.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ current_user.email }}" required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
                             {% if not current_user.email_verified %}
                                 <div class="alert alert-warning mt-2">
                                     Your email is not verified. 
@@ -38,4 +40,66 @@
         </div>
     </div>
 </div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profile-form');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+
+    // Store original values
+    const originalUsername = username.value;
+    const originalEmail = email.value;
+
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+
+        // Username validation
+        if (!username.value.match(/^[a-zA-Z0-9_-]{3,30}$/)) {
+            username.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            username.classList.remove('is-invalid');
+        }
+
+        // Email validation
+        if (!email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            email.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            email.classList.remove('is-invalid');
+        }
+
+        // Only submit if there are actual changes
+        if (username.value === originalUsername && email.value === originalEmail) {
+            event.preventDefault();
+            alert('No changes were made to update.');
+            return;
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+
+    // Real-time validation
+    username.addEventListener('input', function() {
+        if (this.value.match(/^[a-zA-Z0-9_-]{3,30}$/)) {
+            this.classList.remove('is-invalid');
+        } else {
+            this.classList.add('is-invalid');
+        }
+    });
+
+    email.addEventListener('input', function() {
+        if (this.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+            this.classList.remove('is-invalid');
+        } else {
+            this.classList.add('is-invalid');
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %} 
