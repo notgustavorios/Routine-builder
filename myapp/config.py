@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
@@ -10,7 +11,7 @@ class Config:
     DEBUG = os.environ.get('FLASK_DEBUG', 'True') == 'True'
     
     # Session configuration
-    PERMANENT_SESSION_LIFETIME = int(os.environ.get('SESSION_LIFETIME', 1800))  # 30 minutes in seconds
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
     SESSION_REFRESH_EACH_REQUEST = True
 
     # Email configuration
@@ -20,3 +21,8 @@ class Config:
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', MAIL_USERNAME)
+
+    # Google OAuth settings
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+    GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"

@@ -1,10 +1,11 @@
-from flask import render_template, request, redirect, url_for, flash, session, current_app
+from flask import render_template, request, redirect, url_for, flash, session, current_app, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from myapp.models.user import User
 from myapp.models import db
 from myapp.routes import auth_bp
 from myapp.session_manager import check_session_timeout
 from myapp.services.email import send_verification_email, send_password_reset_email
+from myapp.services.google_auth import verify_google_token
 from datetime import datetime
 from urllib.parse import urljoin
 
@@ -53,11 +54,23 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username'].lower()  # Convert to lowercase for case-insensitive comparison
+        if request.is_json and 'google_token' in request.json:
+            # Handle Google Sign In
+            user = verify_google_token(request.json['google_token'])
+            if user:
+                login_user(user)
+                session['last_activity'] = datetime.utcnow().isoformat()
+                session['session_lifetime'] = current_app.config['PERMANENT_SESSION_LIFETIME']
+                session.permanent = True
+                return jsonify({'success': True, 'redirect': url_for('auth.index')})
+            return jsonify({'success': False, 'error': 'Invalid token'}), 400
+        
+        # Handle regular login
+        username = request.form['username'].lower()
         user = User.query.filter(User.username.ilike(username)).first()
         
         if user and user.check_password(request.form['password']):
-            if not user.email_verified:
+            if not user.email_verified and not user.is_google_user:
                 flash('Please verify your email address before logging in.')
                 return redirect(url_for('auth.login'))
             
@@ -69,7 +82,7 @@ def login():
             return redirect(url_for('auth.index'))
         else:
             flash('Invalid username or password')
-    return render_template('login.html')
+    return render_template('login.html', google_client_id=current_app.config['GOOGLE_CLIENT_ID'])
 
 @auth_bp.route('/request-verification', methods=['GET', 'POST'])
 def request_verification():
