@@ -60,7 +60,7 @@ def login():
             if user:
                 login_user(user)
                 session['last_activity'] = datetime.utcnow().isoformat()
-                session['session_lifetime'] = current_app.config['PERMANENT_SESSION_LIFETIME']
+                session['session_lifetime'] = current_app.config['PERMANENT_SESSION_LIFETIME'].total_seconds()
                 session.permanent = True
                 return jsonify({'success': True, 'redirect': url_for('auth.index')})
             return jsonify({'success': False, 'error': 'Invalid token'}), 400
@@ -76,7 +76,7 @@ def login():
             
             login_user(user)
             session['last_activity'] = datetime.utcnow().isoformat()
-            session['session_lifetime'] = current_app.config['PERMANENT_SESSION_LIFETIME']
+            session['session_lifetime'] = current_app.config['PERMANENT_SESSION_LIFETIME'].total_seconds()
             session.permanent = True
             flash('Logged in successfully')
             return redirect(url_for('auth.index'))

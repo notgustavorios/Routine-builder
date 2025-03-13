@@ -12,8 +12,9 @@ def check_session_timeout(f):
             
             if last_activity is not None:
                 last_activity = datetime.fromisoformat(last_activity)
+                session_lifetime = session.get('session_lifetime', 1800)  # Default to 30 minutes in seconds
                 # Check if session has expired
-                if datetime.utcnow() - last_activity > timedelta(seconds=session.get('session_lifetime', 1800)):
+                if datetime.utcnow() - last_activity > timedelta(seconds=session_lifetime):
                     logout_user()
                     flash('Your session has expired. Please log in again.', 'info')
                     return redirect(url_for('auth.login'))
