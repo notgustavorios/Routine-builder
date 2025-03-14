@@ -174,7 +174,7 @@ function createRoutineTable(level, event) {
                     </table>
                 `;
     $("#routine-tables-container").append(tableHTML);
-    attachEventListeners();
+    attachEventListeners(); 
 }
 function getRoutineFormData() {
     const routineName = document.getElementById("routineName").value.trim();
@@ -296,6 +296,17 @@ function createContextMenu(x, y, row) {
 
 // Function to attach event listeners to buttons
 function attachEventListeners() {
+    /* Event listeners attached:
+     * 1. add-skill-button: Shows skill selection interface for adding new skills
+     * 3. delete-skill-button: Removes the last filled skill from routine
+     * 4. calculate-score-button: Calculates and displays routine score
+     * 5. save-routine-button: Opens save routine popup dialog
+     * 6. Right-click context menu on skill rows: For editing/deleting skills
+     * 7. skill-entry click: Handles adding new skills or updating edited skills
+     * 8. closePopup button: Closes the popup overlay
+     * 9. popupOverlay click: Closes popup when clicking outside
+     * 10. Routine table skill row clicks: Shows skill selection for empty rows
+     */
     $(".add-skill-button")
         .off()
         .on("click", function () {
@@ -377,17 +388,15 @@ function attachEventListeners() {
             $("#skill-box").show();
             $(".item").css("flex", "1");
         });
-    $("#close-button").click(function () {
-        $("#skill-box").hide();
-        $("#floor").hide();
-        $("#mushroom").hide();
-        $("#pommel").hide();
-        $("#rings").hide();
-        $("#vault").hide();
-        $("#pbars").hide();
-        $("#highbar").hide();
-        $("#item-1").css("flex", "0 0 100%");
-    });
+    $(".close-button")
+        .off()
+        .on("click", function () {
+            console.log("close button clicked");
+            $("#skill-box").hide();
+            $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+            $("#item-1").css("flex", "1");
+            $("#skill-box").css("flex", "0");
+        });
 
     $(".delete-skill-button")
         .off()
@@ -457,9 +466,6 @@ function attachEventListeners() {
                     }
                 });
 
-            // Debugging log for skills
-            console.log("Skills collected:", skills);
-
             // Prepare the data payload
             const payload = {
                 level: parseInt(level),
@@ -523,8 +529,6 @@ function attachEventListeners() {
             // show the popup
             $("#popupOverlay").show();
         });
-    // handle form submission
-    
 
     // Remove any existing context menu event handlers
     $(document).off('contextmenu', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
@@ -678,7 +682,24 @@ function loadLargeDiv() {
         })
         .then((data) => {
             if (data) {
-                document.getElementById("large-table-container").innerHTML = data;
+                const container = document.getElementById("large-table-container");
+                container.innerHTML = data;
+                // Append close button
+                const closeButton = $('<button>', {
+                    class: 'button close-button',
+                    text: 'Close'
+                });
+                $(container).append(closeButton);
+                
+                // Immediately attach the event listener to the newly created button
+                closeButton.click(function () {
+                    console.log("close button clicked");
+                    $("#skill-box").hide();
+                    $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+                    // Reset the flex properties of the grid items
+                    $("#item-1").css("flex", "1");
+                    $("#skill-box").css("flex", "0");
+                });
             }
         })
         .catch((error) => {
@@ -760,17 +781,7 @@ $(document).ready(function () {
         }
     });
 
-    // Event listener for delete routine button
-    // $("#delete-routine-button").click(function () {
-    //     let first = $("#routine-tables-container table:first");
-    //     let last = $("#routine-tables-container table:last");
-    //     if (first[0] !== last[0]) {
-    //         last.remove();
-    //     } else {
-    //         console.log("Cannot delete the last routine table.");
-    //     }
-    // });
-
-    attachEventListeners();
     loadLargeDiv();
+    attachEventListeners();
+    
 });
