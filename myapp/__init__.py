@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -20,6 +20,22 @@ def create_app(config_object='myapp.config.Config'):
     migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
+    
+    # Force HTTPS
+    @app.before_request
+    def force_https():
+        if not request.is_secure and app.env != 'development':
+            url = request.url.replace('http://', 'https://', 1)
+            return redirect(url, code=301)
+    
+    # Add security headers
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        return response
     
     # Register blueprints
     from myapp.routes import auth_bp, routines_bp, scoring_bp
