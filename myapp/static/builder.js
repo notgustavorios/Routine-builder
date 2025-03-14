@@ -48,11 +48,25 @@ function addSkill(_name, _difficulty, _elementGroup) {
         return $(this).find('td').first().text().trim() === '';
     }).first();
 
-    // If we found an empty row, fill it
     if (emptyRow.length > 0) {
+        // If we found an empty row, fill it
         emptyRow.find('td').eq(0).text(_name);
         emptyRow.find('td').eq(1).text(_difficulty);
         emptyRow.find('td').eq(2).text(_elementGroup);
+    } else {
+        // No empty row found, create a new one
+        const allSkillRows = currentRoutineTable.find("tr.skill-odd-row, tr.skill-even-row");
+        const isEven = allSkillRows.length % 2 === 0;
+        const rowClass = isEven ? 'skill-even-row' : 'skill-odd-row';
+        
+        // Create new row with the appropriate class
+        const newRow = $('<tr>').addClass(rowClass)
+            .append($('<td>').text(_name))
+            .append($('<td>').text(_difficulty))
+            .append($('<td>').text(_elementGroup));
+        
+        // Insert the new row before the add-row (which contains the buttons)
+        currentRoutineTable.find('.add-row').before(newRow);
     }
 }
 
