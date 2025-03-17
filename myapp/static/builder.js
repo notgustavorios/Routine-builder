@@ -321,115 +321,48 @@ function attachEventListeners() {
      * 9. popupOverlay click: Closes popup when clicking outside
      * 10. Routine table skill row clicks: Shows skill selection for empty rows
      */
-    $(".add-skill-button")
-        .off()
-        .on("click", function () {
-            currentRoutineTable = $(this).closest("table");
-            // $("#routine-tables-container").hide();
-            $("#skill-table-container").show();
-            
-            const table = $(this).closest(".routine-table");
-            const headerText = table.find("th").first().text();
-            const event = headerText.split(" ")[2]; // Assuming the format is "Level Event Routine"
-            console.log(`Add skill button clicked in event: ${event}`);
-            switch (event) {
-                case "FX":
-                    $("#floor").show();
-                    $("#pommel").hide();
-                    $("#Mushroom").hide();
-                    $("#rings").hide();
-                    $("#vault").hide();
-                    $("#pbars").hide();
-                    $("#highbar").hide();
-                    break;
-                case "PH":
-                    $("#floor").hide();
-                    $("#pommel").show();
-                    $("#Mushroom").hide();
-                    $("#rings").hide();
-                    $("#vault").hide();
-                    $("#pbars").hide();
-                    $("#highbar").hide();
-                    break;
-                case "Mushroom":
-                    $("#floor").hide();
-                    $("#pommel").hide();
-                    $("#Mushroom").show();
-                    $("#rings").hide();
-                    $("#vault").hide();
-                    $("#pbars").hide();
-                    $("#highbar").hide();
-                    break;
-                case "SR":
-                    $("#floor").hide();
-                    $("#pommel").hide();
-                    $("#Mushroom").hide();
-                    $("#rings").show();
-                    $("#vault").hide();
-                    $("#pbars").hide();
-                    $("#highbar").hide();
-                    break;
-                case "VT":
-                    $("#floor").hide();
-                    $("#pommel").hide();
-                    $("#Mushroom").hide();
-                    $("#rings").hide();
-                    $("#vault").show();
-                    $("#pbars").hide();
-                    $("#highbar").hide();
-                    break;
-                case "PB":
-                    $("#floor").hide();
-                    $("#pommel").hide();
-                    $("#Mushroom").hide();
-                    $("#rings").hide();
-                    $("#vault").hide();
-                    $("#pbars").show();
-                    $("#highbar").hide();
-                    break;
-                case "HB":
-                    $("#floor").hide();
-                    $("#pommel").hide();
-                    $("#Mushroom").hide();
-                    $("#rings").hide();
-                    $("#vault").hide();
-                    $("#pbars").hide();
-                    $("#highbar").show();
-                    break;
-                default:
-                    break;
-            }
-            $("#skill-box").show();
-            $(".item").css("flex", "1");
-        });
-    $(".close-button")
-        .off()
-        .on("click", function () {
-            console.log("close button clicked");
-            $("#skill-box").hide();
-            $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
-            $("#item-1").css("flex", "1");
-            $("#skill-box").css("flex", "0");
-        });
+    $(".add-skill-button").off().on("click", function () {
+        currentRoutineTable = $(this).closest("table");
+        $("#skill-table-container").show();
+        
+        const event = $(this).closest(".routine-table").find("th").first().text().split(" ")[2];
+        console.log(`Add skill button clicked in event: ${event}`);
+        
+        // Hide all event tables first
+        $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+        
+        // Show only relevant event table
+        const eventMap = {
+            'FX': 'floor',
+            'PH': 'pommel',
+            'Mushroom': 'Mushroom',
+            'SR': 'rings',
+            'VT': 'vault',
+            'PB': 'pbars',
+            'HB': 'highbar'
+        };
+        
+        $(`#${eventMap[event]}`).show();
+        $("#skill-box").show();
+        $(".item").css("flex", "1");
+    });
 
-    $(".delete-skill-button")
-        .off()
-        .on("click", function () {
-            // Find the last non-empty row
-            const lastFilledRow = currentRoutineTable
-                .find("tr.skill-odd-row, tr.skill-even-row")
-                .filter(function() {
-                    return $(this).find('td').first().text().trim() !== '';
-                })
-                .last();
+    $(".close-button").off().on("click", function () {
+        $("#skill-box, #floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
+        $("#item-1").css("flex", "1");
+        $("#skill-box").css("flex", "0");
+    });
 
-            // Only clear if we found a row with content
-            if (lastFilledRow.length > 0) {
-                lastFilledRow.find('td').each(function() {
-                    $(this).text('');
-                });
-            }
-        });
+    $(".delete-skill-button").off().on("click", function () {
+        const lastFilledRow = currentRoutineTable
+            .find("tr.skill-odd-row, tr.skill-even-row")
+            .filter(function() {
+                return $(this).find('td').first().text().trim() !== '';
+            })
+            .last();
+        
+        lastFilledRow.length && lastFilledRow.find('td').text('');
+    });
 
     $(".calculate-score-button")
         .off()
