@@ -23,10 +23,14 @@ def create_app(config_object='myapp.config.Config'):
     
     # Force HTTPS
     @app.before_request
-    def force_https():
-        if not request.is_secure and app.env != 'development':
-            url = request.url.replace('http://', 'https://', 1)
-            return redirect(url, code=301)
+    def force_https():            
+        # Check if request is already secure
+        if request.is_secure or request.headers.get('X-Forwarded-Proto', 'http') == 'https':
+            return None
+
+        # Redirect to HTTPS
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
     
     # Add security headers
     @app.after_request

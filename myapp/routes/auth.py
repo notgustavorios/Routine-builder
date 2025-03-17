@@ -8,6 +8,7 @@ from myapp.services.email import send_verification_email, send_password_reset_em
 from myapp.services.google_auth import verify_google_token
 from datetime import datetime
 from urllib.parse import urljoin
+from myapp.models.routine import routine_skills
 
 @auth_bp.route('/')
 @login_required
@@ -244,3 +245,29 @@ def logout():
     logout_user()
     flash('Logged out successfully')
     return redirect(url_for('auth.login'))
+
+@auth_bp.route('/delete-account', methods=['POST'])
+@login_required
+@check_session_timeout
+def delete_account():
+    try:
+        # Delete all routines associated with the user
+        for routine in current_user.routines:
+            # Delete entries from routine_skills explicitly
+            db.session.execute(
+                routine_skills.delete().where(routine_skills.c.routine_id == routine.id)
+            )
+            db.session.delete(routine)
+        
+        # Delete the user
+        db.session.delete(current_user)
+        db.session.commit()
+        
+        # Log out the user
+        logout_user()
+        flash('Your account has been successfully deleted.')
+        return redirect(url_for('auth.login'))
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while deleting your account. Please try again.')
+        return redirect(url_for('auth.profile'))
