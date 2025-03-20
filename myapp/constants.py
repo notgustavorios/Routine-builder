@@ -60,7 +60,32 @@ FIG_ALLOWED = {
     5: ['A','B'],
     6: ['A','B','C'],
     7: ['A','B','C'],
-    8: ['A','B','C','D'],
-    9: ['A','B','C','D'],
-    10: ['A','B','C','D'],
+    8: ['A','B','C','D','E','F','G','H','I','J'],
+    9: ['A','B','C','D','E','F','G','H','I','J'],
+    10: ['A','B','C','D','E','F','G','H','I','J'],
 }
+
+FIG_VALUES = {
+    'A': 0.1,
+    'B': 0.2,
+    'C': 0.3,
+    'D': 0.4,
+    'E': 0.5,
+    'F': 0.6,
+    'G': 0.7,
+    'H': 0.8,
+    'I': 0.9,
+    'J': 1.0,
+}
+
+def get_max_difficulty_for_level(level):
+    # For levels 8-10, use the maximum FIG value (1.0 for 'J' skills)
+    if level >= 8:
+        return 1.0
+    
+    # For other levels, use the existing FIG_ALLOWED logic
+    allowed_figs = FIG_ALLOWED.get(level, [])
+    if not allowed_figs:
+        return 0.0
+    max_fig = allowed_figs[-1]  # Get the highest allowed FIG value
+    return FIG_VALUES.get(max_fig, 0.0)

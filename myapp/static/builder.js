@@ -1,3 +1,6 @@
+// GLOABAL VARIABLES
+let editingRow = null; // Track which row is being edited   
+
 function searchTable() {
     const input = document.getElementById("searchBar").value.toLowerCase();
     const table = document.getElementById("dataTable");
@@ -38,13 +41,11 @@ function searchTable() {
     filteredRows.slice(3).forEach((row) => (row.style.display = ""));
 }
 
-let currentRoutineTable = null;
-let editingRow = null; // Track which row is being edited
-
 // Function to add a skill row to the current routine table
 function addSkill(_name, _difficulty, _elementGroup) {
+    const routineTable = $('.routine-table');
     // Find the first empty row
-    const emptyRow = currentRoutineTable.find("tr.skill-odd-row, tr.skill-even-row").filter(function() {
+    const emptyRow = routineTable.find("tr.skill-odd-row, tr.skill-even-row").filter(function() {
         return $(this).find('td').first().text().trim() === '';
     }).first();
 
@@ -53,9 +54,10 @@ function addSkill(_name, _difficulty, _elementGroup) {
         emptyRow.find('td').eq(0).text(_name);
         emptyRow.find('td').eq(1).text(_difficulty);
         emptyRow.find('td').eq(2).text(_elementGroup);
+        return true;
     } else {
         // No empty row found, create a new one
-        const allSkillRows = currentRoutineTable.find("tr.skill-odd-row, tr.skill-even-row");
+        const allSkillRows = routineTable.find("tr.skill-odd-row, tr.skill-even-row");
         const isEven = allSkillRows.length % 2 === 0;
         const rowClass = isEven ? 'skill-even-row' : 'skill-odd-row';
         
@@ -65,8 +67,9 @@ function addSkill(_name, _difficulty, _elementGroup) {
             .append($('<td>').text(_difficulty))
             .append($('<td>').text(_elementGroup));
         
-        // Insert the new row before the add-row (which contains the buttons)
-        currentRoutineTable.find('.add-row').before(newRow);
+        // Insert before the add-row
+        routineTable.find('.add-row').before(newRow);
+        return true;
     }
 }
 
@@ -86,19 +89,68 @@ function toRomanNumeral(integer) {
 
 // Function to create a new skill table
 function createTable(event, elementGroup) {
-    var newTable = $("<table class='skill-table'></table>");
-    newTable.append(
-        "<tr><th colspan='3'>" +
-        event +
-        " -- Super Skills Chart -- GRP " +
-        toRomanNumeral(elementGroup) +
-        "</th></tr>"
-    );
-    newTable.append(
-        "<tr><th>Skill</th><th>Difficulty</th><th>Element Group</th></tr>"
-    );
-    $("#skill-table-container").append(newTable);
-    return newTable;
+    return new Promise((resolve) => {
+        var newTable = $("<table class='skill-table'></table>");
+        
+        // Map the event name for the API call
+        const eventMap = {
+            'FX': 'floor',
+            'PH': 'pommel',
+            'Mushroom': 'Mushroom',
+            'SR': 'rings',
+            'VT': 'vault',
+            'PB': 'pbars',
+            'HB': 'highbar'
+        };
+        
+        // Map the event name for the API call
+        const apiEvent = eventMap[event] || event;
+        
+        // Fetch element group names
+        $.get(`/routines/element-groups?event=${apiEvent}`)
+            .done(function(elementGroups) {
+                const groupName = elementGroups[elementGroup] || 'Super Skills Chart';
+                
+                // First append the headers
+                newTable.append(
+                    "<tr><th colspan='3'>" +
+                    event +
+                    " -- " +
+                    groupName +
+                    " -- GRP " +
+                    toRomanNumeral(elementGroup) +
+                    "</th></tr>"
+                );
+                newTable.append(
+                    "<tr><th>Skill</th><th>Difficulty</th><th>Element Group</th></tr>"
+                );
+                
+                // Add the table to the container
+                $("#skill-table-container").append(newTable);
+                
+                // Resolve with the table for further use
+                resolve(newTable);
+            })
+            .fail(function() {
+                // Fallback to original behavior if API call fails
+                newTable.append(
+                    "<tr><th colspan='3'>" +
+                    event +
+                    " -- Super Skills Chart -- GRP " +
+                    toRomanNumeral(elementGroup) +
+                    "</th></tr>"
+                );
+                newTable.append(
+                    "<tr><th>Skill</th><th>Difficulty</th><th>Element Group</th></tr>"
+                );
+                
+                // Add the table to the container
+                $("#skill-table-container").append(newTable);
+                
+                // Resolve with the table for further use
+                resolve(newTable);
+            });
+    });
 }
 
 // Function to create a new routine table
@@ -188,7 +240,6 @@ function createRoutineTable(level, event) {
                     </table>
                 `;
     $("#routine-tables-container").append(tableHTML);
-    attachEventListeners(); 
 }
 function getRoutineFormData() {
     const routineName = document.getElementById("routineName").value.trim();
@@ -248,30 +299,24 @@ function createContextMenu(x, y, row) {
             // Add highlight to current row
             $(row).addClass('editing-row');
             editingRow = row;
-            currentRoutineTable = $(row).closest('table');
-            // Show skill selection interface
-            $("#skill-table-container").show();
-            
-            // Show appropriate skill table based on the event
-            const headerText = currentRoutineTable.find("th").first().text();
-            const event = headerText.split(" ")[2];
-            
-            // Hide all skill tables first
-            $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
-            
-            // Show the appropriate skill table
-            switch(event) {
-                case "FX": $("#floor").show(); break;
-                case "PH": $("#pommel").show(); break;
-                case "Mushroom": $("#Mushroom").show(); break;
-                case "SR": $("#rings").show(); break;
-                case "VT": $("#vault").show(); break;
-                case "PB": $("#pbars").show(); break;
-                case "HB": $("#highbar").show(); break;
+            // Get the level and event from the routine table header
+            const headerText = $(row).closest('.routine-table').find("th").first().text();
+            const match = headerText.match(/Level (\d+) (.+) Routine/);
+            if (!match) {
+                console.error("Could not parse level and event from header");
+                return;
             }
             
+            const level = parseInt(match[1]);
+            const event = match[2].trim();
+            
+            // Show skill selection interface
             $("#skill-box").show();
             $(".item").css("flex", "1");
+            
+            // Load skills for this event and level
+            loadSkillsForEvent(level, event);
+            
             $('.context-menu').remove();
         });
 
@@ -308,308 +353,6 @@ function createContextMenu(x, y, row) {
     });
 }
 
-// Function to attach event listeners to buttons
-function attachEventListeners() {
-    /* Event listeners attached:
-     * 1. add-skill-button: Shows skill selection interface for adding new skills
-     * 3. delete-skill-button: Removes the last filled skill from routine
-     * 4. calculate-score-button: Calculates and displays routine score
-     * 5. save-routine-button: Opens save routine popup dialog
-     * 6. Right-click context menu on skill rows: For editing/deleting skills
-     * 7. skill-entry click: Handles adding new skills or updating edited skills
-     * 8. closePopup button: Closes the popup overlay
-     * 9. popupOverlay click: Closes popup when clicking outside
-     * 10. Routine table skill row clicks: Shows skill selection for empty rows
-     */
-    $(".add-skill-button").off().on("click", function () {
-        currentRoutineTable = $(this).closest("table");
-        $("#skill-table-container").show();
-        
-        const event = $(this).closest(".routine-table").find("th").first().text().split(" ")[2];
-        console.log(`Add skill button clicked in event: ${event}`);
-        
-        // Hide all event tables first
-        $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
-        
-        // Show only relevant event table
-        const eventMap = {
-            'FX': 'floor',
-            'PH': 'pommel',
-            'Mushroom': 'Mushroom',
-            'SR': 'rings',
-            'VT': 'vault',
-            'PB': 'pbars',
-            'HB': 'highbar'
-        };
-        
-        $(`#${eventMap[event]}`).show();
-        $("#skill-box").show();
-        $(".item").css("flex", "1");
-    });
-
-    $(".close-button").off().on("click", function () {
-        $("#skill-box, #floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
-        $("#item-1").css("flex", "1");
-        $("#skill-box").css("flex", "0");
-    });
-
-    $(".delete-skill-button").off().on("click", function () {
-        const lastFilledRow = currentRoutineTable
-            .find("tr.skill-odd-row, tr.skill-even-row")
-            .filter(function() {
-                return $(this).find('td').first().text().trim() !== '';
-            })
-            .last();
-        
-        lastFilledRow.length && lastFilledRow.find('td').text('');
-    });
-
-    $(".calculate-score-button")
-        .off()
-        .on("click", function () {
-            // Find the routine-table this button belongs to
-            const routineTable = $(this).closest(".routine-table");
-
-            // Extract the level and event from the header
-            const headerText = routineTable
-                .find(".header-row th")
-                .first()
-                .text()
-                .trim();
-            console.log("Header text:", headerText); // Debugging log
-
-            const match = headerText.match(/Level (\d+) (.+) Routine/);
-            if (!match) {
-                console.error(
-                    "Failed to parse level and event from header text:",
-                    headerText
-                );
-                return; // Stop execution if parsing fails
-            }
-
-            const level = parseInt(match[1], 10); // Extract the level
-            const event = match[2].trim(); // Extract the event
-            console.log("Parsed level:", level); // Debugging log
-            console.log("Parsed event:", event); // Debugging log
-
-            // Gather skill data
-            const skills = [];
-            routineTable
-                .find("tr.skill-even-row, tr.skill-odd-row")
-                .each(function (index) {
-                    const skillName = $(this).find("td").eq(0).text().trim();
-                    const difficulty =
-                        parseFloat($(this).find("td").eq(1).text().trim()) || null;
-                    const elementGroup =
-                        parseInt($(this).find("td").eq(2).text().trim()) || null;
-
-                    if (skillName || difficulty || elementGroup) {
-                        skills.push({
-                            name: skillName || null,
-                            value: difficulty || 0,
-                            element_group: elementGroup || 0,
-                            position: index + 1, // Maintain skill order
-                        });
-                    }
-                });
-
-            // Prepare the data payload
-            const payload = {
-                level: parseInt(level),
-                event: event,
-                skills: skills,
-            };
-
-            // Send data to the API
-            $.ajax({
-                url: "/scoring/calculate", 
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(payload),
-                success: function (response) {
-                    alert(
-                        "Exercise Presentation: " +
-                        response.exercisepresentation +
-                        "\n" +
-                        "Element Group Total: " +
-                        response.elementgrouptotal +
-                        "\n" +
-                        "Difficulty Total: " +
-                        response.difficultytotal +
-                        "\n" +
-                        "Total Score: " +
-                        response.totalscore
-                    );
-                },
-                error: function (error) {
-                    alert("Error calculating score: " + error.responseJSON.error);
-                },
-            });
-        });
-
-    $(".save-routine-button")
-        .off()
-        .on("click", function () {
-            // find the routine table
-            const routineTable = $(this).closest(".routine-table");
-
-            // extract level and event from the header
-            const headerText = routineTable
-                .find(".header-row th")
-                .first()
-                .text()
-                .trim();
-            const match = headerText.match(/Level (\d+) (.+) Routine/);
-
-            if (!match) {
-                console.error("couldn't parse level and event. nice job.");
-                return;
-            }
-
-            const level = match[1];
-            const event = match[2].trim();
-
-            // auto-populate the form
-            $("#routineLevel").val(`Level ${level}`);
-            $("#routineEvent").val(event);
-
-            // show the popup
-            $("#popupOverlay").show();
-        });
-
-    // Remove any existing context menu event handlers
-    $(document).off('contextmenu', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
-    
-    // Add right-click event handler to skill rows
-    $(document).on('contextmenu', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row', function(e) {
-        e.preventDefault(); // Prevent default right-click menu
-        const skillText = $(this).find('td').first().text().trim();
-        if (skillText !== '') { // Only show context menu if row has a skill
-            createContextMenu(e.clientX, e.clientY, this);
-        }
-    });
-
-    // Modify the skill-entry click handler to handle both adding and editing
-    $(document).off('click', '.skill-entry').on('click', '.skill-entry', function() {
-        const skillName = $(this).find('td').eq(0).text();
-        const skillDifficulty = $(this).find('td').eq(1).text();
-        const skillElementGroup = $(this).find('td').eq(2).text();
-        
-        if (editingRow) {
-            // If we're editing, update the existing row
-            $(editingRow).find('td').eq(0).text(skillName);
-            $(editingRow).find('td').eq(1).text(skillDifficulty);
-            $(editingRow).find('td').eq(2).text(skillElementGroup);
-            $(editingRow).removeClass('editing-row'); // Remove highlight
-            editingRow = null; // Reset editing state
-        } else {
-            // Otherwise add as a new skill
-            addSkill(skillName, skillDifficulty, skillElementGroup);
-        }
-    });
-
-    document.getElementById("closePopup").addEventListener("click", function () {
-        document.getElementById("popupOverlay").style.display = "none";
-    });
-
-    document
-        .getElementById("popupOverlay")
-        .addEventListener("click", function (e) {
-            if (e.target === this) {
-                this.style.display = "none";
-            }
-        });
-
-    // Add click handler for skill rows
-    $(document).off('click', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row').on('click', '.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row', function(e) {
-        // Don't trigger if clicking on a row that already has a skill
-        if ($(this).find('td').first().text().trim() !== '') {
-            return;
-        }
-        
-        currentRoutineTable = $(this).closest('table');
-        $("#skill-table-container").show();
-
-        const headerText = $(this).closest('.routine-table').find("th").first().text();
-        const event = headerText.split(" ")[2];
-        
-        // Hide all skill tables first
-        $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
-        
-        // Show the appropriate skill table
-        switch(event) {
-            case "FX": $("#floor").show(); break;
-            case "PH": $("#pommel").show(); break;
-            case "Mushroom": $("#Mushroom").show(); break;
-            case "SR": $("#rings").show(); break;
-            case "VT": $("#vault").show(); break;
-            case "PB": $("#pbars").show(); break;
-            case "HB": $("#highbar").show(); break;
-        }
-        
-        $("#skill-box").show();
-        $(".item").css("flex", "1");
-    });
-}
-
-$("#routineForm").on("submit", function (e) {
-    e.preventDefault(); // stop your form from causing a page reload, rookie.
-
-    const routineName = $("#routineName").val().trim();
-    const level = $("#routineLevel").val().replace("Level ", ""); // parse out the number
-    const event = $("#routineEvent").val();
-
-    if (!routineName || !level || !event) {
-        alert("fill out the form properly, genius.");
-        return;
-    }
-
-    // collect skills
-    const skills = [];
-    $(".routine-table:visible")
-        .find("tr.skill-even-row, tr.skill-odd-row")
-        .each(function (index) {
-            const skillName = $(this).find("td").eq(0).text().trim();
-            const difficulty =
-                parseFloat($(this).find("td").eq(1).text().trim()) || null;
-            const elementGroup =
-                parseInt($(this).find("td").eq(2).text().trim()) || null;
-
-            if (skillName || difficulty || elementGroup) {
-                skills.push({
-                    name: skillName || null,
-                    value: difficulty || 0,
-                    element_group: elementGroup || 0,
-                    position: index + 1,
-                });
-            }
-        });
-
-    // prepare payload
-    const payload = {
-        name: routineName,
-        level: parseInt(level, 10),
-        event: event,
-        skills: skills,
-    };
-
-    // send the data
-    $.ajax({
-        url: "/routines/save",
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify(payload),
-        success: function (response) {
-            console.log("routine saved successfully:", response);
-            alert("routine saved!");
-            $("#popupOverlay").hide();
-        },
-        error: function (xhr, status, error) {
-            console.error("error saving routine:", xhr.responseText);
-            alert("failed to save routine.");
-        },
-    });
-});
 // Function to reset button colors
 function resetButtonColors() {
     $(".level-button").removeClass("active");
@@ -619,39 +362,92 @@ function resetButtonColors() {
     $("#submit-routine-request").hide();
 }
 
-function loadLargeDiv() {
-    fetch("/routines/skills-table")
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.text();
-        })
-        .then((data) => {
-            if (data) {
-                const container = document.getElementById("large-table-container");
-                container.innerHTML = data;
-                // Append close button
-                const closeButton = $('<button>', {
-                    class: 'button close-button',
-                    text: 'Close'
+// Function to load skills for a specific event and level
+function loadSkillsForEvent(level, event) {
+    const container = document.getElementById("large-table-container");
+    
+    // Clear the container and make it visible
+    container.innerHTML = '';
+    container.style.display = 'block';
+    
+    // Make the dataTable div
+    const dataTable = document.createElement('div');
+    dataTable.id = 'dataTable';
+    container.appendChild(dataTable);
+
+    // Create a div to hold the skill tables
+    const skillTableContainer = document.createElement('div');
+    skillTableContainer.id = 'skill-table-container';
+    dataTable.appendChild(skillTableContainer);
+    
+    // Event mapping for API calls
+    const eventMap = {
+        'FX': 'floor',
+        'PH': 'pommel',
+        'Mushroom': 'Mushroom',
+        'SR': 'rings',
+        'VT': 'vault',
+        'PB': 'pbars',
+        'HB': 'highbar'
+    };
+    
+    // Map the event name for the API call
+    const apiEvent = eventMap[event] || event;
+
+    const eventNameContainer = document.createElement('div');   
+    eventNameContainer.id = 'api-event-name';
+    dataTable.appendChild(eventNameContainer);
+
+    // Add the close button to the container
+    closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.textContent = 'Close';
+    dataTable.appendChild(closeButton);
+
+    // Fetch skills from the API
+    $.get(`/routines/skills?level=${level}&event=${apiEvent}`)
+        .done(function(response) {
+            const skills = response.skills;
+            
+            // Group skills by element group
+            const skillsByGroup = {};
+            skills.forEach(skill => {
+                if (!skillsByGroup[skill.element_group]) {
+                    skillsByGroup[skill.element_group] = [];
+                }
+                skillsByGroup[skill.element_group].push(skill);
+            });
+            
+            // Create tables for each element group
+            Object.keys(skillsByGroup).sort().forEach(groupNum => {
+                const groupSkills = skillsByGroup[groupNum];
+                createTable(event, parseInt(groupNum)).then(table => {
+                    // Add skills to the table
+                    groupSkills.forEach(skill => {
+                        const row = $("<tr class='skill-entry'></tr>");
+                        row.append(`<td>${skill.name}</td>`);
+                        row.append(`<td>${skill.value.toFixed(1)}</td>`);
+                        row.append(`<td>${skill.element_group}</td>`);
+                        
+                        // Add data attributes for when skill is selected
+                        row.attr('data-skill-id', skill.id);
+                        row.attr('data-skill-name', skill.name);
+                        row.attr('data-element-group', skill.element_group);
+                        row.attr('data-value', skill.value);
+                        
+                        table.append(row);
+                    });
                 });
-                $(container).append(closeButton);
-                
-                // Immediately attach the event listener to the newly created button
-                closeButton.click(function () {
-                    console.log("close button clicked");
-                    $("#skill-box").hide();
-                    $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
-                    // Reset the flex properties of the grid items
-                    $("#item-1").css("flex", "1");
-                    $("#skill-box").css("flex", "0");
-                });
-            }
+            });
+            
+            // Show the skill table container
+            $("#skill-table-container").show();
         })
-        .catch((error) => {
-            console.error("Error loading the large table:", error);
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            console.error('Failed to fetch skills:', errorThrown);
+            alert('Failed to load skills. Please try again.');
         });
+    
 }
 
 (function () {
@@ -677,58 +473,268 @@ function loadLargeDiv() {
     });
 })();
 
-$(document).ready(function () {
-    console.log("JQuery loaded");
-
+// Main event delegation setup
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize state
     let selectedLevel = null;
     let selectedEvent = null;
 
-    // Function to update the submit button text
+    // Helper function to update submit button text
     function updateSubmitButton() {
+        const submitBtn = document.getElementById('submit-routine-request');
         if (selectedLevel && selectedEvent) {
-            $("#submit-routine-request").text(
-                `Create Level ${selectedLevel} ${selectedEvent} routine table`
-            );
-            $("#submit-routine-request").show();
+            submitBtn.textContent = `Create Level ${selectedLevel} ${selectedEvent} routine table`;
+            submitBtn.style.display = 'block';
         }
     }
 
-    // Event listener for level buttons
-    $(".level-button").click(function () {
-        $(".level-button").removeClass("active");
-        $(this).addClass("active");
-        selectedLevel = $(this).text();
-        updateSubmitButton();
-    });
+    // Helper function to parse routine header
+    function parseRoutineHeader(headerElement) {
+        const headerText = headerElement.textContent.trim();
+        const match = headerText.match(/Level (\d+) (.+) Routine/);
+        if (!match) {
+            console.error('Could not parse level and event from header:', headerText);
+            return null;
+        }
+        return {
+            level: parseInt(match[1]),
+            event: match[2].trim()
+        };
+    }
 
-    // Event listener for event buttons
-    $(".event-button").click(function () {
-        $(".event-button").removeClass("active");
-        $(this).addClass("active");
-        selectedEvent = $(this).text();
-        updateSubmitButton();
-    });
+    // Global click event delegation
+    document.addEventListener('click', e => {
+        // Level button clicks
+        if (e.target.matches('.level-button')) {
+            document.querySelectorAll('.level-button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            selectedLevel = e.target.textContent;
+            updateSubmitButton();
+        }
 
-    // Event listener for submit routine request button
-    $("#submit-routine-request").click(function () {
-        if (selectedLevel && selectedEvent) {
-            console.log(selectedEvent);
-            console.log(selectedLevel);
-            if (
-                selectedEvent == "PH" &&
-                (selectedLevel == "Level 4" || selectedLevel == "Level 5")
-            ) {
-                createRoutineTable(selectedLevel, "Mushroom");
-            } else {
-                createRoutineTable(selectedLevel, selectedEvent);
-            }
-            $("#routine-tables-container").show();
-            $("#add-routine-table-container").hide();
+        // Event button clicks
+        if (e.target.matches('.event-button')) {
+            document.querySelectorAll('.event-button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            selectedEvent = e.target.textContent;
+            updateSubmitButton();
+        }
+
+        // Submit routine request
+        if (e.target.matches('#submit-routine-request') && selectedLevel && selectedEvent) {
+            const event = (selectedEvent === 'PH' && ['Level 4', 'Level 5'].includes(selectedLevel)) 
+                ? 'Mushroom' 
+                : selectedEvent;
+            createRoutineTable(selectedLevel, event);
+            
+            // Use jQuery to ensure the display changes are applied
+            $('#routine-tables-container').show();
+            $('#add-routine-table-container').hide();
+            
             resetButtonColors();
+        }
+
+        // Add skill button
+        if (e.target.matches('.add-skill-button')) {
+            const routineTable = e.target.closest('.routine-table');
+            const header = routineTable.querySelector('th');
+            const routineInfo = parseRoutineHeader(header);
+            if (!routineInfo) return;
+
+            document.getElementById('skill-box').style.display = 'block';
+            document.querySelectorAll('.item').forEach(item => item.style.flex = '1');
+            loadSkillsForEvent(routineInfo.level, routineInfo.event);
+        }
+
+        // Close button
+        if (e.target.matches('.close-button')) {
+            document.getElementById('large-table-container').style.display = 'none';
+            document.getElementById('item-1').style.flex = '1';
+            document.getElementById('skill-box').style.flex = '0';
+        }
+
+        // Delete skill button
+        if (e.target.matches('.delete-skill-button')) {
+            const table = e.target.closest('table');
+            const rows = Array.from(table.querySelectorAll('tr.skill-odd-row, tr.skill-even-row'));
+            const lastFilledRow = rows.reverse().find(row => 
+                row.querySelector('td').textContent.trim() !== ''
+            );
+            if (lastFilledRow) {
+                lastFilledRow.querySelectorAll('td').forEach(td => td.textContent = '');
+            }
+        }
+
+        // Calculate score button
+        if (e.target.matches('.calculate-score-button')) {
+            const routineTable = e.target.closest('.routine-table');
+            const header = routineTable.querySelector('.header-row th');
+            const routineInfo = parseRoutineHeader(header);
+            if (!routineInfo) return;
+
+            const skills = Array.from(routineTable.querySelectorAll('tr.skill-even-row, tr.skill-odd-row'))
+                .map((row, index) => {
+                    const cells = row.querySelectorAll('td');
+                    const skillName = cells[0].textContent.trim();
+                    const difficulty = parseFloat(cells[1].textContent.trim()) || null;
+                    const elementGroup = parseInt(cells[2].textContent.trim()) || null;
+
+                    if (skillName || difficulty || elementGroup) {
+                        return {
+                            name: skillName || null,
+                            value: difficulty || 0,
+                            element_group: elementGroup || 0,
+                            position: index + 1
+                        };
+                    }
+                    return null;
+                })
+                .filter(Boolean);
+
+            fetch('/scoring/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    level: routineInfo.level, 
+                    event: routineInfo.event, 
+                    skills 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(
+                    `Exercise Presentation: ${data.exercisepresentation}\n` +
+                    `Element Group Total: ${data.elementgrouptotal}\n` +
+                    `Difficulty Total: ${data.difficultytotal}\n` +
+                    `Total Score: ${data.totalscore}`
+                );
+            })
+            .catch(error => alert('Error calculating score: ' + error));
+        }
+
+        // Save routine button
+        if (e.target.matches('.save-routine-button')) {
+            const routineTable = e.target.closest('.routine-table');
+            const header = routineTable.querySelector('.header-row th');
+            const routineInfo = parseRoutineHeader(header);
+            if (!routineInfo) return;
+
+            document.getElementById('routineLevel').value = `Level ${routineInfo.level}`;
+            document.getElementById('routineEvent').value = routineInfo.event;
+            document.getElementById('popupOverlay').style.display = 'block';
+        }
+
+        // Close popup
+        if (e.target.matches('#closePopup')) {
+            document.getElementById('popupOverlay').style.display = 'none';
+        }
+
+        // Popup overlay click
+        if (e.target.matches('#popupOverlay')) {
+            e.target.style.display = 'none';
+        }
+
+        // Skill entry click
+        if (e.target.closest('.skill-entry')) {
+            const row = e.target.closest('.skill-entry');
+            const skillData = {
+                name: row.getAttribute('data-skill-name'),
+                value: parseFloat(row.getAttribute('data-value')).toFixed(1),
+                elementGroup: row.getAttribute('data-element-group')
+            };
+
+            if (editingRow) {
+                // Update the editing row with the selected skill
+                $(editingRow).find('td').eq(0).text(skillData.name);
+                $(editingRow).find('td').eq(1).text(skillData.value);
+                $(editingRow).find('td').eq(2).text(skillData.elementGroup);
+                $(editingRow).removeClass('editing-row');   
+                editingRow = null;
+            } else {
+                // Add the skill using the addSkill function
+                addSkill(skillData.name, skillData.value, skillData.elementGroup);
+            }
+        }
+
+        // Empty skill row click
+        if (e.target.closest('.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row')) {
+            const row = e.target.closest('tr');
+            if (row.querySelector('td').textContent.trim() !== '') return;
+
+            const header = row.closest('table').querySelector('th');
+            const routineInfo = parseRoutineHeader(header);
+            if (!routineInfo) return;
+
+            document.getElementById('skill-box').style.display = 'block';
+            document.querySelectorAll('.item').forEach(item => item.style.flex = '1');
+            loadSkillsForEvent(routineInfo.level, routineInfo.event);
         }
     });
 
-    loadLargeDiv();
-    attachEventListeners();
-    
+    // Context menu event delegation
+    document.addEventListener('contextmenu', e => {
+        const row = e.target.closest('.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
+        if (!row) return;
+
+        e.preventDefault();
+        const skillText = row.querySelector('td').textContent.trim();
+        if (skillText) {
+            createContextMenu(e.clientX, e.clientY, row);
+        }
+    });
+
+    // Form submission handling
+    document.getElementById('routineForm')?.addEventListener('submit', e => {
+        e.preventDefault();
+        
+        const formData = {
+            name: document.getElementById('routineName').value.trim(),
+            level: document.getElementById('routineLevel').value.replace('Level ', ''),
+            event: document.getElementById('routineEvent').value
+        };
+
+        if (!formData.name || !formData.level || !formData.event) {
+            alert('Please fill out all form fields properly.');
+            return;
+        }
+
+        const skills = Array.from(document.querySelectorAll('.routine-table:not([style*="display: none"]) tr.skill-even-row, .routine-table:not([style*="display: none"]) tr.skill-odd-row'))
+            .map((row, index) => {
+                const cells = row.querySelectorAll('td');
+                const skillName = cells[0].textContent.trim();
+                const difficulty = parseFloat(cells[1].textContent.trim()) || null;
+                const elementGroup = parseInt(cells[2].textContent.trim()) || null;
+
+                if (skillName || difficulty || elementGroup) {
+                    return {
+                        name: skillName || null,
+                        value: difficulty || 0,
+                        element_group: elementGroup || 0,
+                        position: index + 1
+                    };
+                }
+                return null;
+            })
+            .filter(Boolean);
+
+        fetch('/routines/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: formData.name,
+                level: parseInt(formData.level),
+                event: formData.event,
+                skills
+            })
+        })
+        .then(response => response.json())
+        .then(() => {
+            alert('Routine saved successfully!');
+            document.getElementById('popupOverlay').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error saving routine:', error);
+            alert('Failed to save routine.');
+        });
+    });
 });

@@ -3,8 +3,10 @@ from flask_login import login_required, current_user
 from myapp.models import db
 from myapp.models.routine import Routine, routine_skills
 from myapp.models.skill import Skill
+from myapp.models.element_group import ElementGroup
 from myapp.routes import routines_bp
 from myapp.session_manager import check_session_timeout
+from myapp.constants import get_max_difficulty_for_level
 
 @routines_bp.route('/build')
 @login_required
@@ -97,9 +99,42 @@ def add_skill_to_routine(routine_id):
     
     return redirect(url_for('routines.edit', routine_id=routine_id))
 
-@routines_bp.route('/skills-table')
-def load_skills_table():
-    return render_template('skills.html')
+@routines_bp.route('/skills')
+@login_required
+@check_session_timeout
+def get_skills():
+    level = request.args.get('level', type=int)
+    event = request.args.get('event')
+    
+    if not level or not event:
+        return jsonify({
+            'error': 'Both level and event are required parameters'
+        }), 400
+    
+    # Get the maximum allowed difficulty for this level
+    max_difficulty = get_max_difficulty_for_level(level)
+    
+    # Query skills that match the event and have appropriate difficulty
+    skills = Skill.query.filter(
+        Skill.event == event,
+        Skill.value <= max_difficulty
+    ).order_by(Skill.value, Skill.name).all()
+    
+    # Convert skills to dictionary format
+    skills_data = [{
+        'id': skill.id,
+        'name': skill.name,
+        'value': skill.value,
+        'element_group': skill.element_group,
+        'event': skill.event
+    } for skill in skills]
+    
+    return jsonify({
+        'skills': skills_data,
+        'max_difficulty': max_difficulty,
+        'level': level,
+        'event': event
+    })
 
 @routines_bp.route('/view', methods=['GET'])
 @login_required
@@ -187,3 +222,19 @@ def delete_routine(routine_id):
         flash(f'Error deleting routine: {str(e)}', 'danger')
 
     return redirect(url_for('auth.index'))
+
+@routines_bp.route('/element-groups')
+@login_required
+@check_session_timeout
+def get_element_groups():
+    event = request.args.get('event')
+    if not event:
+        return jsonify({'error': 'Event parameter is required'}), 400
+    
+    # Query element groups for the given event
+    element_groups = ElementGroup.query.filter_by(event=event).order_by(ElementGroup.element_group).all()
+    
+    # Convert to a dictionary with element_group as key
+    group_dict = {str(group.element_group): group.name for group in element_groups}
+    
+    return jsonify(group_dict)
