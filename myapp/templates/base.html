@@ -6,37 +6,172 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <title>{% block title %}Gymnastics Clips{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --usa-blue: #002868;
+            --usa-red: #BF0A30;
+            --text-light: #ffffff;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        .stripe-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--usa-blue) 0px,
+                var(--usa-blue) 40px,
+                var(--usa-red) 40px,
+                var(--usa-red) 80px,
+                var(--usa-blue) 80px,
+                var(--usa-blue) 120px
+            );
+            z-index: -1;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            background-color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer {
+            background-color: var(--usa-blue);
+            color: var(--text-light);
+            padding: 20px 0;
+            margin-top: auto;
+        }
+
+        .navbar {
+            margin-bottom: 0;
+            background-color: var(--usa-blue) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0.8rem 0;
+        }
+
+        .navbar-brand {
+            color: var(--text-light) !important;
+            font-weight: 600;
+            font-size: 1.4rem;
+            padding: 0.5rem 1rem;
+            border-right: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .navbar-nav .nav-item.active .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background-color: var(--usa-red);
+        }
+
+        .user-welcome {
+            background-color: var(--usa-red);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin: 0 0.5rem;
+        }
+
+        .navbar-toggler {
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            margin-right: 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: var(--text-light);
+        }
+
+        .back-button i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-nav {
+                padding: 1rem 0;
+            }
+            .user-welcome {
+                margin: 0.5rem 0;
+            }
+            .back-button {
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
     {% block head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="stripe-pattern"></div>
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('auth.index') }}">Men's Artistic Gymnastics</a>
+            <div class="d-flex align-items-center">
+                <a class="back-button" onclick="goBack()" title="Go back">
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="d-none d-sm-inline">Back</span>
+                </a>
+                <a class="navbar-brand" href="{{ url_for('auth.index') }}">Men's Artistic Gymnastics</a>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
+                    <li class="nav-item {% if request.endpoint == 'auth.index' %}active{% endif %}">
                         <a class="nav-link" href="{{ url_for('auth.index') }}">Home</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.profile') }}">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <span class="nav-link">Welcome, {{ current_user.username }}</span>
-                        </li>
+                            <a class="nav-link user-welcome" href="{{ url_for('auth.profile') }}">{{ current_user.username }}</a>
+                        </li>                       
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
                         </li>
                     {% else %}
-                        <li class="nav-item">
+                        <li class="nav-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
                             <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item {% if request.endpoint == 'auth.register' %}active{% endif %}">
                             <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
                         </li>
                     {% endif %}
@@ -45,19 +180,44 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
+    <div class="content-wrapper">
+        <div class="container mt-4">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-info">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
+    <footer>
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Men's Artistic Gymnastics. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = "{{ url_for('auth.index') }}";
+            }
+        }
+
+        // Hide back button on home page
+        document.addEventListener('DOMContentLoaded', function() {
+            const backButton = document.querySelector('.back-button');
+            if (window.location.pathname === "{{ url_for('auth.index') }}") {
+                backButton.style.display = 'none';
+            }
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
