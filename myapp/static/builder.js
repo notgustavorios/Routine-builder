@@ -92,13 +92,34 @@ function toRomanNumeral(integer) {
 
 // Function to load the skills JSON data
 async function loadSkillsData() {
-    if (skillsData !== null) {
-        return skillsData; // Return cached data if available
+    // Try to get data and timestamp from localStorage
+    const cachedData = localStorage.getItem('skillsData');
+    const cachedTimestamp = localStorage.getItem('skillsDataTimestamp');
+    
+    if (cachedData && cachedTimestamp) {
+        const oneWeek = 7 * 24 * 60 * 60 * 1000; // One week in milliseconds
+        const now = new Date().getTime();
+        
+        // Check if the cached data is less than one week old
+        if (now - parseInt(cachedTimestamp) < oneWeek) {
+            skillsData = JSON.parse(cachedData);
+            return skillsData;
+        } else {
+            // Data is older than one week, clear it
+            localStorage.removeItem('skillsData');
+            localStorage.removeItem('skillsDataTimestamp');
+        }
     }
     
+    // If not in localStorage or data is expired, fetch from server
     try {
         const response = await fetch('/static/skills.json');
         skillsData = await response.json();
+        
+        // Store in localStorage with current timestamp
+        localStorage.setItem('skillsData', JSON.stringify(skillsData));
+        localStorage.setItem('skillsDataTimestamp', new Date().getTime().toString());
+        
         return skillsData;
     } catch (error) {
         console.error('Failed to load skills data:', error);
