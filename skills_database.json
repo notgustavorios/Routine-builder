@@ -1,340 +1,6 @@
 {
-  "Mushroom": {
-    "Circles": [
-      {
-        "name": "Circle",
-        "value": 0.1
-      },
-      {
-        "name": "Direct St\u00f6ckli A (DSA)",
-        "value": 0.2
-      },
-      {
-        "name": "Circle",
-        "value": 0.1
-      },
-      {
-        "name": "Direct St\u00f6ckli A (DSA)",
-        "value": 0.2
-      },
-      {
-        "name": "Czechkehre",
-        "value": 0.2
-      },
-      {
-        "name": "Circle through handstand (with or without \u00bd t.) and lower circle. (Tippelt)",
-        "value": 0.3
-      }
-    ],
-    "180\u00b0 Turns": [
-      {
-        "name": "Any \u00bd spindle (Keikha 2)",
-        "value": 0.2
-      },
-      {
-        "name": "Russian wendeswing with 180\u00b0",
-        "value": 0.1
-      }
-    ],
-    "Flairs": [
-      {
-        "name": "Any flair in side support. (Thomas)",
-        "value": 0.1
-      },
-      {
-        "name": "Any flair in side support. (Thomas)",
-        "value": 0.1
-      },
-      {
-        "name": "Flair through handstand (with or without \u00bd t.) and lower to flair. (Tippelt)",
-        "value": 0.3
-      }
-    ],
-    "Dismount": [
-      {
-        "name": "Wende from circle (also from Russian wendeswing 180\u00b0 or 270\u00b0)",
-        "value": 0.1
-      }
-    ]
-  },
-  "PH": {
-    "Single leg swings and scissors": [
-      {
-        "name": "Scissor forward with travel sideways (also with 1/2 t.",
-        "value": 0.2
-      },
-      {
-        "name": "Double scissor fwd. (\u00bc t. fwd. a. \u00bc t. bwd.).",
-        "value": 0.2
-      },
-      {
-        "name": "Double scissor forward sideways from one end to the other (3/3). (Mikulak)",
-        "value": 0.4
-      },
-      {
-        "name": "Leg cut or undercut bwd. through handstand and lower to support with straddle legs.",
-        "value": 0.2
-      }
-    ]
-  },
-  "SR": {
-    "Strength elements and hold elements (2 sec.)": [
-      {
-        "name": "Muscle up--No hold",
-        "value": 0.0
-      },
-      {
-        "name": "Straight/Tuck Support--2s--Rings turned out--Arms straight",
-        "value": 0.0
-      },
-      {
-        "name": "L-sit (2 s.) or straddled L-sit (2 s.).",
-        "value": 0.1
-      },
-      {
-        "name": "Hanging scale rearways (back lever) (2 s.).",
-        "value": 0.1
-      },
-      {
-        "name": "German hand--2s",
-        "value": 0.0
-      },
-      {
-        "name": "Pull up--Bent arm hand--2s",
-        "value": 0.0
-      },
-      {
-        "name": "Hanging straight arm--Tuck hold--2s",
-        "value": 0.0
-      },
-      {
-        "name": "Piked INV hand--2s",
-        "value": 0.0
-      }
-    ],
-    "Kip and swing elements & swings through or to handstand (2 sec.)": [
-      {
-        "name": "Full swing--Candlestick/ reverse candlestick position or Reverse--45\u00b0 < HOR",
-        "value": 0.0
-      }
-    ],
-    "Swing to Strength hold elements (2 sec.)": [
-      {
-        "name": "Swing--Inverted Hang--2s",
-        "value": 0.0
-      }
-    ],
-    "Dismounts": [
-      {
-        "name": "Salto bwd. piked or straight also with \u00bd.",
-        "value": 0.1
-      },
-      {
-        "name": "Salto BWD--Tuck",
-        "value": 0.0
-      },
-      {
-        "name": "German hand--Drop",
-        "value": 0.0
-      }
-    ]
-  },
-  "FX": {
-    "Acrobatic elements forward": [
-      {
-        "name": "Forward handspring or flyspring.",
-        "value": 0.1
-      },
-      {
-        "name": "Bent Arm tuck FWD roll",
-        "value": 0.0
-      },
-      {
-        "name": "Dive roll.",
-        "value": 0.1
-      }
-    ],
-    "Non-acrobatic elements": [
-      {
-        "name": "Handstand (2 s.).",
-        "value": 0.1
-      },
-      {
-        "name": "Sissone",
-        "value": 0.0
-      },
-      {
-        "name": "From stand, Swiss press to hdst. (2 s.).",
-        "value": 0.1
-      },
-      {
-        "name": "Handstand No Hold",
-        "value": 0.0
-      },
-      {
-        "name": "Press Headstand",
-        "value": 0.0
-      },
-      {
-        "name": "Any standing scale (2 s.).",
-        "value": 0.1
-      },
-      {
-        "name": "Press from split, L-sit strad. or front sup. (2 s.).",
-        "value": 0.2
-      },
-      {
-        "name": "Tuck Jump",
-        "value": 0.0
-      }
-    ],
-    "Acrobatic elements backward": [
-      {
-        "name": "Cartwheel step BWD or bring feet together BWD",
-        "value": 0.0
-      },
-      {
-        "name": "Straight arm BWD roll to pike stand or prone",
-        "value": 0.0
-      },
-      {
-        "name": "Round off",
-        "value": 0.0
-      },
-      {
-        "name": "Bent arm tuck/pike/straddle BWD roll",
-        "value": 0.0
-      },
-      {
-        "name": "Back handspring.",
-        "value": 0.1
-      }
-    ],
-    "Single Salto forward and/or backward with 1 or more turns": [
-      {
-        "name": "Back Handspring (w rebound)",
-        "value": 0.0
-      },
-      {
-        "name": "Roundoff (w rebound)",
-        "value": 0.0
-      }
-    ]
-  },
-  "PB": {
-    "Long swings in hand on 1 or 2 bars and underswings": [
-      {
-        "name": "Full long hand swing--Straight body--45\u00b0 < HOR--Both sides",
-        "value": 0.0
-      },
-      {
-        "name": "Long hand swing BWD--Straight legs--Uprise pull up--Upper arm",
-        "value": 0.0
-      }
-    ],
-    "Elements in support or through support on 2 bars": [
-      {
-        "name": "Upper arm support--Swing BWD--Shoulder stand--2s",
-        "value": 0.0
-      },
-      {
-        "name": "Any L-sit on 1 or 2 rails (2 s.)",
-        "value": 0.1
-      },
-      {
-        "name": "Any swing to handstand",
-        "value": 0.1
-      },
-      {
-        "name": "Full Upper Arm Swing--Straight body 45\u00b0 < HOR--Both sides",
-        "value": 0.0
-      },
-      {
-        "name": "Front uprise--Straddle front support hold--Straight legs on bar",
-        "value": 0.0
-      }
-    ],
-    "Elements starting in upper arm position": [
-      {
-        "name": "Forward uprise to support.",
-        "value": 0.1
-      },
-      {
-        "name": "Full support swing--Straight body--Parallel to bar--Both sides",
-        "value": 0.0
-      },
-      {
-        "name": "Straddle 'L'--2s",
-        "value": 0.0
-      }
-    ],
-    "Dismounts": [
-      {
-        "name": "BWD Support Swing--Flank dismount",
-        "value": 0.0
-      },
-      {
-        "name": "Drop--From BWD swing",
-        "value": 0.0
-      }
-    ]
-  },
-  "HB": {
-    "In bar and Adler elements": [
-      {
-        "name": "Pullover--Support--Stop allowed",
-        "value": 0.0
-      },
-      {
-        "name": "Cast--HOR",
-        "value": 0.0
-      },
-      {
-        "name": "Back hip circle",
-        "value": 0.0
-      },
-      {
-        "name": "Undershoot--Hollow body--thru out",
-        "value": 0.0
-      },
-      {
-        "name": "Pullover--Coach assist",
-        "value": 0.0
-      }
-    ],
-    "Long hang swings with and without turns": [
-      {
-        "name": "Swing 1/2 (180\u00b0) turn--HOP",
-        "value": 0.0
-      },
-      {
-        "name": "Full tap swing--Hollow body at 45\u00b0--Each side",
-        "value": 0.0
-      },
-      {
-        "name": "Hanging 1/2 (180\u00b0) turn",
-        "value": 0.0
-      }
-    ],
-    "Flight elements": [
-      {
-        "name": "Back swing--2-hand REL and Regrasp",
-        "value": 0.0
-      }
-    ],
-    "Dismounts": [
-      {
-        "name": "Salto bwd. piked or str. also with \u00bd or 1/1 t.",
-        "value": 0.1
-      },
-      {
-        "name": "Drop--From Back swing",
-        "value": 0.0
-      }
-    ]
-  },
   "floor": {
-    "Group 1": [
+    "Non-acrobatic elements": [
       {
         "name": "Sissone",
         "value": 0.0
@@ -584,7 +250,7 @@
         "value": 0.4
       }
     ],
-    "Group 2": [
+    "Acrobatic elements forward": [
       {
         "name": "Headspring",
         "value": 0.0
@@ -662,7 +328,7 @@
         "value": 0.6
       }
     ],
-    "Group 3": [
+    "Acrobatic elements backward": [
       {
         "name": "Round off",
         "value": 0.0
@@ -792,7 +458,7 @@
         "value": 1.0
       }
     ],
-    "Group 4": [
+    "Single Salto forward and/or backward with 1 or more turns": [
       {
         "name": "Roundoff (w rebound)",
         "value": 0.0
@@ -860,7 +526,7 @@
     ]
   },
   "pommel": {
-    "Group 1": [
+    "Single leg swings and scissors": [
       {
         "name": "Front Support--Leg cut--Stride Support",
         "value": 0.0
@@ -966,7 +632,7 @@
         "value": 0.4
       }
     ],
-    "Group 2": [
+    "Circle and flairs, with and/or without spindles and handstands, Kherswings, Russian, wendeswings, flops and combined elements": [
       {
         "name": "Single leg Pick up--Thru Rear Support--1/2 Circle--Front Support",
         "value": 0.0
@@ -1152,7 +818,7 @@
         "value": 0.6
       }
     ],
-    "Group 3": [
+    "Travels": [
       {
         "name": "Single leg travel",
         "value": 0.0
@@ -1282,7 +948,7 @@
         "value": 0.5
       }
     ],
-    "Group 4": [
+    "Dismounts": [
       {
         "name": "Leg cut FWD--1/4 (90\u00b0) turn--Finish SWD to Horse",
         "value": 0.0
@@ -1354,7 +1020,137 @@
     ]
   },
   "rings": {
-    "Group 2": [
+    "Kip and swing elements & swings through or to handstand (2 sec.)": [
+      {
+        "name": "FWD Giant--SHD stand--SHD stand--2s",
+        "value": 0.0
+      },
+      {
+        "name": "BWD Giant--SHD stand--SHD stand--2s",
+        "value": 0.0
+      },
+      {
+        "name": "Full swing--Candlestick/ reverse candlestick position or Reverse--45\u00b0 < HOR",
+        "value": 0.0
+      },
+      {
+        "name": "Kip w coach assist",
+        "value": 0.0
+      },
+      {
+        "name": "Uprise fwd. to support.",
+        "value": 0.1
+      },
+      {
+        "name": "From any support scale, swallow or swing bwd in support, roll forward to bwd swing\n                                    in hang.",
+        "value": 0.1
+      },
+      {
+        "name": "From hang, felge upward to support.",
+        "value": 0.1
+      },
+      {
+        "name": "Dislocate bwd. piked or straight.",
+        "value": 0.1
+      },
+      {
+        "name": "Uprise bwd. to support.",
+        "value": 0.1
+      },
+      {
+        "name": "Inlocate piked or straight.",
+        "value": 0.1
+      },
+      {
+        "name": "Slow inlocate from hang.",
+        "value": 0.1
+      },
+      {
+        "name": "Kip to support.",
+        "value": 0.1
+      },
+      {
+        "name": "Back kip with bent arms to support.",
+        "value": 0.1
+      },
+      {
+        "name": "Fwd. swing to swing bwd. in hang.",
+        "value": 0.1
+      },
+      {
+        "name": "From support or cross, felge bwd. piked or straight with bent arms to support.",
+        "value": 0.1
+      },
+      {
+        "name": "Uprise fwd and counter salto fwd. to bwd swing in hang. (Chechi)",
+        "value": 0.2
+      },
+      {
+        "name": "Swing fwd. through hdst.",
+        "value": 0.2
+      },
+      {
+        "name": "Uprise bwd. str. through handstand.",
+        "value": 0.2
+      },
+      {
+        "name": "Backward swing to salto fwd. piked to support (Honma)",
+        "value": 0.2
+      },
+      {
+        "name": "Double salto fwd. tucked to hang. (Yamawaki)",
+        "value": 0.2
+      },
+      {
+        "name": "Back kip to support.",
+        "value": 0.2
+      },
+      {
+        "name": "Back kip or roll bwd str. with bent arms to handstand (2 s.).",
+        "value": 0.2
+      },
+      {
+        "name": "From support swing bwd. to handstand (2 s.).",
+        "value": 0.2
+      },
+      {
+        "name": "Tucked double salto bwd. to hang (Guczoghy)",
+        "value": 0.3
+      },
+      {
+        "name": "Honma straight.",
+        "value": 0.3
+      },
+      {
+        "name": "Double salto fwd. piked or straight to hang. (Jonasson)",
+        "value": 0.3
+      },
+      {
+        "name": "Bwd. swing, salto piked to support.",
+        "value": 0.3
+      },
+      {
+        "name": "Swing bwd. or giant swing bwd to handstand (2 s.).",
+        "value": 0.3
+      },
+      {
+        "name": "Uprise bwd. or giant swing fwd to handstand (2 s.).",
+        "value": 0.3
+      },
+      {
+        "name": "Honma and swing bwd. to handstand (2 s.).",
+        "value": 0.3
+      },
+      {
+        "name": "Piked or straight double salto bwd. to hang. (O\u2019Neill)",
+        "value": 0.4
+      },
+      {
+        "name": "Honma str. and swing bwd. to handstand (2 s.).",
+        "value": 0.4
+      }
+    ],
+    "Strength elements and hold elements": [
       {
         "name": "Any cross (2 s.)or V cross (2 s.).",
         "value": 0.3
@@ -1652,137 +1448,7 @@
         "value": 0.7
       }
     ],
-    "Group 1": [
-      {
-        "name": "FWD Giant--SHD stand--SHD stand--2s",
-        "value": 0.0
-      },
-      {
-        "name": "BWD Giant--SHD stand--SHD stand--2s",
-        "value": 0.0
-      },
-      {
-        "name": "Full swing--Candlestick/ reverse candlestick position or Reverse--45\u00b0 < HOR",
-        "value": 0.0
-      },
-      {
-        "name": "Kip w coach assist",
-        "value": 0.0
-      },
-      {
-        "name": "Uprise fwd. to support.",
-        "value": 0.1
-      },
-      {
-        "name": "From any support scale, swallow or swing bwd in support, roll forward to bwd swing\n                                    in hang.",
-        "value": 0.1
-      },
-      {
-        "name": "From hang, felge upward to support.",
-        "value": 0.1
-      },
-      {
-        "name": "Dislocate bwd. piked or straight.",
-        "value": 0.1
-      },
-      {
-        "name": "Uprise bwd. to support.",
-        "value": 0.1
-      },
-      {
-        "name": "Inlocate piked or straight.",
-        "value": 0.1
-      },
-      {
-        "name": "Slow inlocate from hang.",
-        "value": 0.1
-      },
-      {
-        "name": "Kip to support.",
-        "value": 0.1
-      },
-      {
-        "name": "Back kip with bent arms to support.",
-        "value": 0.1
-      },
-      {
-        "name": "Fwd. swing to swing bwd. in hang.",
-        "value": 0.1
-      },
-      {
-        "name": "From support or cross, felge bwd. piked or straight with bent arms to support.",
-        "value": 0.1
-      },
-      {
-        "name": "Uprise fwd and counter salto fwd. to bwd swing in hang. (Chechi)",
-        "value": 0.2
-      },
-      {
-        "name": "Swing fwd. through hdst.",
-        "value": 0.2
-      },
-      {
-        "name": "Uprise bwd. str. through handstand.",
-        "value": 0.2
-      },
-      {
-        "name": "Backward swing to salto fwd. piked to support (Honma)",
-        "value": 0.2
-      },
-      {
-        "name": "Double salto fwd. tucked to hang. (Yamawaki)",
-        "value": 0.2
-      },
-      {
-        "name": "Back kip to support.",
-        "value": 0.2
-      },
-      {
-        "name": "Back kip or roll bwd str. with bent arms to handstand (2 s.).",
-        "value": 0.2
-      },
-      {
-        "name": "From support swing bwd. to handstand (2 s.).",
-        "value": 0.2
-      },
-      {
-        "name": "Tucked double salto bwd. to hang (Guczoghy)",
-        "value": 0.3
-      },
-      {
-        "name": "Honma straight.",
-        "value": 0.3
-      },
-      {
-        "name": "Double salto fwd. piked or straight to hang. (Jonasson)",
-        "value": 0.3
-      },
-      {
-        "name": "Bwd. swing, salto piked to support.",
-        "value": 0.3
-      },
-      {
-        "name": "Swing bwd. or giant swing bwd to handstand (2 s.).",
-        "value": 0.3
-      },
-      {
-        "name": "Uprise bwd. or giant swing fwd to handstand (2 s.).",
-        "value": 0.3
-      },
-      {
-        "name": "Honma and swing bwd. to handstand (2 s.).",
-        "value": 0.3
-      },
-      {
-        "name": "Piked or straight double salto bwd. to hang. (O\u2019Neill)",
-        "value": 0.4
-      },
-      {
-        "name": "Honma str. and swing bwd. to handstand (2 s.).",
-        "value": 0.4
-      }
-    ],
-    "Group 3": [
+    "Swing to Strength hold elements (2 sec.)": [
       {
         "name": "Back uprise--Straight/Tuck support--2s--Rings turned out--Arms straight",
         "value": 0.0
@@ -1932,7 +1598,7 @@
         "value": 0.6
       }
     ],
-    "Group 4": [
+    "Dismounts": [
       {
         "name": "Salto BWD--Tuck",
         "value": 0.0
@@ -2036,7 +1702,7 @@
     ]
   },
   "vault": {
-    "Group 1": [
+    "Single Salto vaults with complex twists": [
       {
         "name": "Hdspr. sw. w. \u00bc t. a. salto fwd. t. w. \u00bd t. or Tsuk. t. w. 1/1 t. (Kasamatsu)",
         "value": 2.8
@@ -2126,7 +1792,7 @@
         "value": 6.0
       }
     ],
-    "Group 2": [
+    "Handspring salto vaults with or without simple twists, and all double salto fwd.": [
       {
         "name": "Forward handspring.",
         "value": 1.6
@@ -2184,7 +1850,7 @@
         "value": 6.0
       }
     ],
-    "Group 3": [
+    "Handspring sideways and Tsukahara vaults with or without simple twists, and all double salto bwd.": [
       {
         "name": "Handspring sw. with \u00bc t.",
         "value": 1.6
@@ -2230,7 +1896,7 @@
         "value": 6.0
       }
     ],
-    "Group 4": [
+    "Round off entry and single salto vaults with complex twists": [
       {
         "name": "Round off, handspring bwd.",
         "value": 1.6

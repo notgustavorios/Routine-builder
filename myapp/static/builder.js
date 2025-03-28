@@ -1,6 +1,9 @@
 // GLOABAL VARIABLES
 let editingRow = null; // Track which row is being edited   
 
+// Global variable to store the skills data
+let skillsData = null;
+
 function searchTable() {
     const input = document.getElementById("searchBar").value.toLowerCase();
     const table = document.getElementById("dataTable");
@@ -87,12 +90,171 @@ function toRomanNumeral(integer) {
     return "IV";
 }
 
-// Function to create a new skill table
+// Function to load the skills JSON data
+async function loadSkillsData() {
+    if (skillsData !== null) {
+        return skillsData; // Return cached data if available
+    }
+    
+    try {
+        const response = await fetch('/static/skills.json');
+        skillsData = await response.json();
+        return skillsData;
+    } catch (error) {
+        console.error('Failed to load skills data:', error);
+        return null;
+    }
+}
+
+// Function to determine if a skill's difficulty is allowed for a given level
+function isSkillAllowedForLevel(difficulty, level) {
+    // All levels can do 0.0 difficulty skills
+    if (difficulty === 0.0) return true;
+
+    // Map of allowed FIG values per level
+    const FIG_ALLOWED = {
+        1: ['A'],
+        2: ['A'],
+        3: ['A'],
+        4: ['A','B'],
+        5: ['A','B'],
+        6: ['A','B','C'],
+        7: ['A','B','C'],
+        8: ['A','B','C','D','E','F','G','H','I','J'],
+        9: ['A','B','C','D','E','F','G','H','I','J'],
+        10: ['A','B','C','D','E','F','G','H','I','J']
+    };
+
+    // Map of FIG values to difficulties
+    const FIG_VALUES = {
+        'A': 0.1,
+        'B': 0.2,
+        'C': 0.3,
+        'D': 0.4,
+        'E': 0.5,
+        'F': 0.6,
+        'G': 0.7,
+        'H': 0.8,
+        'I': 0.9,
+        'J': 1.0
+    };
+
+    // Get allowed FIG values for this level
+    const allowedFigs = FIG_ALLOWED[level] || [];
+    
+    // Convert difficulty to FIG letter
+    const figLetter = Object.entries(FIG_VALUES).find(([_, value]) => value === difficulty)?.[0];
+    
+    // Check if the FIG letter is allowed for this level
+    return figLetter && allowedFigs.includes(figLetter);
+}
+
+// Modified loadSkillsForEvent function
+async function loadSkillsForEvent(level, event) {
+    const container = document.getElementById("large-table-container");
+    
+    // Clear the container and make it visible
+    container.innerHTML = '';
+    container.style.display = 'block';
+    
+    // Make the dataTable div
+    const dataTable = document.createElement('div');
+    dataTable.id = 'dataTable';
+    container.appendChild(dataTable);
+
+    // Create a div to hold the skill tables
+    const skillTableContainer = document.createElement('div');
+    skillTableContainer.id = 'skill-table-container';
+    dataTable.appendChild(skillTableContainer);
+    
+    // Event mapping
+    const eventMap = {
+        'FX': 'floor',
+        'PH': 'pommel',
+        'Mushroom': 'Mushroom',
+        'SR': 'rings',
+        'VT': 'vault',
+        'PB': 'pbars',
+        'HB': 'highbar'
+    };
+    
+    // Map the event name
+    const apiEvent = eventMap[event] || event;
+
+    const eventNameContainer = document.createElement('div');   
+    eventNameContainer.id = 'api-event-name';
+    dataTable.appendChild(eventNameContainer);
+
+    // Add the close button to the container
+    closeButton = document.createElement('button');
+    closeButton.className = 'close-button';
+    closeButton.textContent = 'Close';
+    dataTable.appendChild(closeButton);
+
+    try {
+        // Load the skills data
+        const data = await loadSkillsData();
+        if (!data || !data[apiEvent]) {
+            throw new Error('No data available for this event');
+        }
+
+        const eventData = data[apiEvent];
+        
+        // Extract level number, handling both string and number formats
+        const levelNumber = typeof level === 'string' ? 
+            parseInt(level.replace('Level ', '')) : 
+            parseInt(level);
+        
+        if (isNaN(levelNumber)) {
+            throw new Error('Invalid level format');
+        }
+        
+        // Create tables for each element group
+        for (const [groupKey, groupData] of Object.entries(eventData)) {
+            // Filter skills based on level requirements
+            const allowedSkills = groupData.skills.filter(skill => 
+                isSkillAllowedForLevel(skill.difficulty, levelNumber)
+            );
+            
+            // Skip empty groups
+            if (allowedSkills.length === 0) continue;
+
+            const elementGroup = allowedSkills[0]?.element_group;
+            if (!elementGroup) continue;
+
+            const table = await createTable(event, elementGroup);
+            
+            // Add skills to the table
+            allowedSkills.forEach(skill => {
+                const row = $("<tr class='skill-entry'></tr>");
+                row.append(`<td>${skill.name}</td>`);
+                row.append(`<td>${skill.difficulty.toFixed(1)}</td>`);
+                row.append(`<td>${skill.element_group}</td>`);
+                
+                // Add data attributes for when skill is selected
+                row.attr('data-skill-name', skill.name);
+                row.attr('data-element-group', skill.element_group);
+                row.attr('data-value', skill.difficulty);
+                
+                table.append(row);
+            });
+        }
+        
+        // Show the skill table container
+        $("#skill-table-container").show();
+        
+    } catch (error) {
+        console.error('Failed to load skills:', error);
+        alert('Failed to load skills. Please try again.');
+    }
+}
+
+// Modified createTable function to use proper element group names
 function createTable(event, elementGroup) {
     return new Promise((resolve) => {
         var newTable = $("<table class='skill-table'></table>");
         
-        // Map the event name for the API call
+        // Map the event name to match the JSON structure
         const eventMap = {
             'FX': 'floor',
             'PH': 'pommel',
@@ -103,53 +265,34 @@ function createTable(event, elementGroup) {
             'HB': 'highbar'
         };
         
-        // Map the event name for the API call
         const apiEvent = eventMap[event] || event;
+        const eventData = skillsData[apiEvent];
+        let groupName = "Skills";  // Default fallback
         
-        // Fetch element group names
-        $.get(`/routines/element-groups?event=${apiEvent}`)
-            .done(function(elementGroups) {
-                const groupName = elementGroups[elementGroup] || 'Super Skills Chart';
-                
-                // First append the headers
-                newTable.append(
-                    "<tr><th colspan='3'>" +
-                    event +
-                    " -- " +
-                    groupName +
-                    " -- GRP " +
-                    toRomanNumeral(elementGroup) +
-                    "</th></tr>"
-                );
-                newTable.append(
-                    "<tr><th>Skill</th><th>Difficulty</th><th>Element Group</th></tr>"
-                );
-                
-                // Add the table to the container
-                $("#skill-table-container").append(newTable);
-                
-                // Resolve with the table for further use
-                resolve(newTable);
-            })
-            .fail(function() {
-                // Fallback to original behavior if API call fails
-                newTable.append(
-                    "<tr><th colspan='3'>" +
-                    event +
-                    " -- Super Skills Chart -- GRP " +
-                    toRomanNumeral(elementGroup) +
-                    "</th></tr>"
-                );
-                newTable.append(
-                    "<tr><th>Skill</th><th>Difficulty</th><th>Element Group</th></tr>"
-                );
-                
-                // Add the table to the container
-                $("#skill-table-container").append(newTable);
-                
-                // Resolve with the table for further use
-                resolve(newTable);
-            });
+        // Find the group name by looking through each group's skills
+        if (eventData) {
+            for (const [groupKey, groupData] of Object.entries(eventData)) {
+                // Check if any skills in this group match our element group number
+                if (groupData && groupData.skills && groupData.skills.some(skill => skill.element_group === elementGroup)) {
+                    groupName = groupData.name;
+                    break;
+                }
+            }
+        }
+        
+        // First append the headers
+        newTable.append(
+            "<tr><th colspan='3'>" + groupName + "</th></tr>"
+        );
+        newTable.append(
+            "<tr><th>Skill</th><th>Difficulty</th><th>Element Group</th></tr>"
+        );
+        
+        // Add the table to the container
+        $("#skill-table-container").append(newTable);
+        
+        // Resolve with the table for further use
+        resolve(newTable);
     });
 }
 
@@ -362,94 +505,6 @@ function resetButtonColors() {
     $("#submit-routine-request").hide();
 }
 
-// Function to load skills for a specific event and level
-function loadSkillsForEvent(level, event) {
-    const container = document.getElementById("large-table-container");
-    
-    // Clear the container and make it visible
-    container.innerHTML = '';
-    container.style.display = 'block';
-    
-    // Make the dataTable div
-    const dataTable = document.createElement('div');
-    dataTable.id = 'dataTable';
-    container.appendChild(dataTable);
-
-    // Create a div to hold the skill tables
-    const skillTableContainer = document.createElement('div');
-    skillTableContainer.id = 'skill-table-container';
-    dataTable.appendChild(skillTableContainer);
-    
-    // Event mapping for API calls
-    const eventMap = {
-        'FX': 'floor',
-        'PH': 'pommel',
-        'Mushroom': 'Mushroom',
-        'SR': 'rings',
-        'VT': 'vault',
-        'PB': 'pbars',
-        'HB': 'highbar'
-    };
-    
-    // Map the event name for the API call
-    const apiEvent = eventMap[event] || event;
-
-    const eventNameContainer = document.createElement('div');   
-    eventNameContainer.id = 'api-event-name';
-    dataTable.appendChild(eventNameContainer);
-
-    // Add the close button to the container
-    closeButton = document.createElement('button');
-    closeButton.className = 'close-button';
-    closeButton.textContent = 'Close';
-    dataTable.appendChild(closeButton);
-
-    // Fetch skills from the API
-    $.get(`/routines/skills?level=${level}&event=${apiEvent}`)
-        .done(function(response) {
-            const skills = response.skills;
-            
-            // Group skills by element group
-            const skillsByGroup = {};
-            skills.forEach(skill => {
-                if (!skillsByGroup[skill.element_group]) {
-                    skillsByGroup[skill.element_group] = [];
-                }
-                skillsByGroup[skill.element_group].push(skill);
-            });
-            
-            // Create tables for each element group
-            Object.keys(skillsByGroup).sort().forEach(groupNum => {
-                const groupSkills = skillsByGroup[groupNum];
-                createTable(event, parseInt(groupNum)).then(table => {
-                    // Add skills to the table
-                    groupSkills.forEach(skill => {
-                        const row = $("<tr class='skill-entry'></tr>");
-                        row.append(`<td>${skill.name}</td>`);
-                        row.append(`<td>${skill.value.toFixed(1)}</td>`);
-                        row.append(`<td>${skill.element_group}</td>`);
-                        
-                        // Add data attributes for when skill is selected
-                        row.attr('data-skill-id', skill.id);
-                        row.attr('data-skill-name', skill.name);
-                        row.attr('data-element-group', skill.element_group);
-                        row.attr('data-value', skill.value);
-                        
-                        table.append(row);
-                    });
-                });
-            });
-            
-            // Show the skill table container
-            $("#skill-table-container").show();
-        })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            console.error('Failed to fetch skills:', errorThrown);
-            alert('Failed to load skills. Please try again.');
-        });
-    
-}
-
 (function () {
     "use strict";
 
@@ -619,19 +674,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const routineInfo = parseRoutineHeader(header);
             if (!routineInfo) return;
 
+            // Reset form and clear any previous validation
+            const form = document.getElementById('routineForm');
+            form.classList.remove('was-validated');
+            form.reset();
+
+            // Set initial values
             document.getElementById('routineLevel').value = `Level ${routineInfo.level}`;
             document.getElementById('routineEvent').value = routineInfo.event;
-            document.getElementById('popupOverlay').style.display = 'block';
+            
+            // Show popup with proper positioning
+            const overlay = document.getElementById('popupOverlay');
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            
+            // Prevent body scrolling when popup is open
+            document.body.style.overflow = 'hidden';
         }
 
         // Close popup
         if (e.target.matches('#closePopup')) {
             document.getElementById('popupOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         // Popup overlay click
         if (e.target.matches('#popupOverlay')) {
             e.target.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         // Skill entry click
