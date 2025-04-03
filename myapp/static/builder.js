@@ -57,6 +57,7 @@ function addSkill(_name, _difficulty, _elementGroup) {
         emptyRow.find('td').eq(0).text(_name);
         emptyRow.find('td').eq(1).text(_difficulty);
         emptyRow.find('td').eq(2).text(_elementGroup);
+        updateRealTimeScoring();
         return true;
     } else {
         // No empty row found, create a new one
@@ -72,6 +73,7 @@ function addSkill(_name, _difficulty, _elementGroup) {
         
         // Insert before the add-row
         routineTable.find('.add-row').before(newRow);
+        updateRealTimeScoring();
         return true;
     }
 }
@@ -504,6 +506,7 @@ function createContextMenu(x, y, row) {
             });
             $(row).removeClass('delete-highlight');
             $('.context-menu').remove();
+            updateRealTimeScoring(); // Update scoring after deletion
         });
     
     contextMenu.append(editItem);
@@ -606,6 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Use jQuery to ensure the display changes are applied
             $('#routine-tables-container').show();
             $('#add-routine-table-container').hide();
+            $('#real-time-scoring').show(); // Show real-time scoring
             
             resetButtonColors();
         }
@@ -624,9 +628,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Close button
         if (e.target.matches('.close-button')) {
+            document.getElementById('skill-box').style.display = 'none';
             document.getElementById('large-table-container').style.display = 'none';
-            document.getElementById('item-1').style.flex = '1';
-            document.getElementById('skill-box').style.flex = '0';
         }
 
         // Delete skill button
@@ -638,6 +641,7 @@ document.addEventListener('DOMContentLoaded', () => {
             );
             if (lastFilledRow) {
                 lastFilledRow.querySelectorAll('td').forEach(td => td.textContent = '');
+                updateRealTimeScoring(); // Update scoring after deletion
             }
         }
 
@@ -742,6 +746,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $(editingRow).find('td').eq(2).text(skillData.elementGroup);
                 $(editingRow).removeClass('editing-row');   
                 editingRow = null;
+                updateRealTimeScoring(); // Update scoring after editing
+                // Hide the skill box after editing
+                document.getElementById('skill-box').style.display = 'none';
+                document.getElementById('large-table-container').style.display = 'none';
             } else {
                 // Add the skill using the addSkill function
                 addSkill(skillData.name, skillData.value, skillData.elementGroup);
@@ -830,3 +838,84 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Add these functions at the top level
+function updateRealTimeScoring() {
+    const rows = $('.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
+    let groupScores = {1: null, 2: null, 3: null, 4: null};
+    let totalDifficulty = 0;
+    let skillBank = new Set();
+    let numSuperSkills = 0;
+
+    // Get level from the routine table header
+    const headerText = $('.routine-table .header-row th').first().text();
+    const levelMatch = headerText.match(/Level (\d+)/);
+    if (!levelMatch) return;
+    const level = parseInt(levelMatch[1]);
+
+    rows.each(function() {
+        const cells = $(this).find('td');
+        if (cells.length >= 3 && cells.eq(0).text().trim() !== '') {
+            const skillName = cells.eq(0).text().trim();
+            const difficulty = parseFloat(cells.eq(1).text()) || 0;
+            const elementGroup = parseInt(cells.eq(2).text()) || 0;
+            
+            // Only count each unique skill once for difficulty
+            if (!skillBank.has(skillName)) {
+                if (difficulty === 0.0) {
+                    numSuperSkills++;
+                }
+                totalDifficulty += difficulty;
+                skillBank.add(skillName);
+            }
+
+            // Update element group credit based on highest value
+            if (elementGroup >= 1 && elementGroup <= 4) {
+                if (groupScores[elementGroup] === null || difficulty >= groupScores[elementGroup]) {
+                    groupScores[elementGroup] = difficulty;
+                }
+            }
+        }
+    });
+
+    // Calculate element group values based on level rules
+    let elementGroupValues = {};
+    Object.entries(groupScores).forEach(([group, value]) => {
+        let displayValue = '0.0';
+        
+        if (value !== null) {
+            switch (level) {
+                case 1:
+                case 2:
+                case 3:
+                    displayValue = value >= 0.0 ? '0.5' : '0.0';
+                    break;
+                    
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                    if (value === 0.0) displayValue = '0.3';
+                    else if (value >= 0.1) displayValue = '0.5';
+                    break;
+                    
+                case 9:
+                    if (value === 0.0) displayValue = '0.3';
+                    else if (value === 0.1) displayValue = group === '1' ? '0.5' : '0.3';
+                    else if (value >= 0.2) displayValue = '0.5';
+                    break;
+                    
+                case 10:
+                    if (value === 0.0 || value === 0.1 || value === 0.2) displayValue = '0.3';
+                    else if (value >= 0.3) displayValue = '0.5';
+                    break;
+            }
+        }
+        
+        elementGroupValues[group] = displayValue;
+        $(`#group-${group}-value`).text(displayValue);
+    });
+    
+    $('#total-difficulty').text(totalDifficulty.toFixed(1));
+}

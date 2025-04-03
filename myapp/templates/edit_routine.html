@@ -11,6 +11,39 @@ NGA Routine Builder
 
 {% block content %}
     <div id="grid">
+        <div class="item" id="real-time-scoring" style="display: block;">
+            <h3>Routine Analysis</h3>
+            <table id="element-group-table">
+                <thead>
+                    <tr>
+                        <th>Element Group</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Group I</td>
+                        <td id="group-1-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Group II</td>
+                        <td id="group-2-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Group III</td>
+                        <td id="group-3-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Group IV</td>
+                        <td id="group-4-value">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="difficulty-display">
+                <h4>Total Difficulty:</h4>
+                <span id="total-difficulty">0.0</span>
+            </div>
+        </div>
         <div class="item" id="item-1">
             <!-- Routine tables are appended to this div -->
             <div id="routine-tables-container" class="vertical">
@@ -119,5 +152,8 @@ NGA Routine Builder
     {{ super() }} <!-- Retains Bootstrap scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='builder.js') }}"></script>
+    <script>
+        updateRealTimeScoring();
+    </script>
 {% endblock %}
 

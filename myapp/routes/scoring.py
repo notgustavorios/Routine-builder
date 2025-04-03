@@ -5,6 +5,7 @@ from myapp.services.scoring import (
     process_skills,
     calculate_short_routine_deduction,
     calculate_element_group_total,
+    calculate_out_of_range_skills_deduction,
     generate_summary
 )
 from myapp.constants import EXERCISE_PRESENTATION
@@ -24,15 +25,15 @@ def calculate_score():
         return jsonify({'error': 'Missing required data'}), 400
     
     # Process skills and calculate scores
-    skill_bank, difficulty_total, element_group_credit, num_super_skills, num_fig_skills = process_skills(skills)
+    skill_bank, difficulty_total, element_group_credit, num_super_skills, num_fig_skills, out_of_range_skills = process_skills(skills, level)
     
     # Calculate deductions and bonuses
     short_routine_deduction = calculate_short_routine_deduction(skill_bank, num_super_skills, level)
     element_group_total = calculate_element_group_total(element_group_credit, level)
-    
+    out_of_range_skills_deduction = calculate_out_of_range_skills_deduction(out_of_range_skills)
     # Calculate final score
     exercise_presentation_total = EXERCISE_PRESENTATION[level]
-    total_score = exercise_presentation_total + difficulty_total + element_group_total - short_routine_deduction
+    total_score = exercise_presentation_total + difficulty_total + element_group_total - short_routine_deduction - out_of_range_skills_deduction
     
     # Generate summary
     summary = generate_summary(element_group_credit, exercise_presentation_total, difficulty_total)
