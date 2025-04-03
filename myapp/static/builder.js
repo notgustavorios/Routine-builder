@@ -695,10 +695,10 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(data => {
                 alert(
-                    `Exercise Presentation: ${data.exercisepresentation}\n` +
-                    `Element Group Total: ${data.elementgrouptotal}\n` +
-                    `Difficulty Total: ${data.difficultytotal}\n` +
-                    `Total Score: ${data.totalscore}`
+                    `Exercise Presentation: ${data.exercisepresentation.toFixed(2)}\n` +
+                    `Element Group Total: ${data.elementgrouptotal.toFixed(2)}\n` +
+                    `Difficulty Total: ${data.difficultytotal.toFixed(2)}\n` +
+                    `Total Score: ${data.totalscore.toFixed(2)}`
                 );
             })
             .catch(error => alert('Error calculating score: ' + error));
