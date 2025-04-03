@@ -6,42 +6,54 @@ let skillsData = null;
 
 function searchTable() {
     const input = document.getElementById("searchBar").value.toLowerCase();
-    const table = document.getElementById("dataTable");
-    const rows = Array.from(table.getElementsByTagName("tr")).slice(1); // Exclude the header row
+    const tables = document.querySelectorAll(".skill-table");
 
-    // If input is empty, display all rows
-    if (input === "") {
-        rows.forEach((row) => (row.style.display = ""));
-        return;
-    }
+    tables.forEach(table => {
+        const rows = Array.from(table.getElementsByTagName("tr"));
+        const headerRows = rows.slice(0, 2); // Get the group header and column headers
+        const skillRows = rows.slice(2); // Get only the skill rows
 
-    // Filter rows based on the input
-    const filteredRows = rows.filter((row) => {
-        const cells = row.getElementsByTagName("td");
-        return Array.from(cells).some((cell) =>
-            cell.textContent.toLowerCase().includes(input)
-        );
+        // Always show the headers
+        headerRows.forEach(row => row.style.display = "");
+
+        // If input is empty, show all rows
+        if (input === "") {
+            skillRows.forEach(row => row.style.display = "");
+            return;
+        }
+
+        // Filter and sort skill rows
+        const filteredRows = skillRows.filter(row => {
+            const cells = row.getElementsByTagName("td");
+            return Array.from(cells).some(cell =>
+                cell.textContent.toLowerCase().includes(input)
+            );
+        });
+
+        // Sort rows by closest match
+        filteredRows.sort((a, b) => {
+            const aMatchCount = Array.from(a.getElementsByTagName("td")).filter(
+                cell => cell.textContent.toLowerCase().includes(input)
+            ).length;
+            const bMatchCount = Array.from(b.getElementsByTagName("td")).filter(
+                cell => cell.textContent.toLowerCase().includes(input)
+            ).length;
+            return bMatchCount - aMatchCount;
+        });
+
+        // Hide all skill rows first
+        skillRows.forEach(row => row.style.display = "none");
+
+        // Show filtered rows
+        filteredRows.forEach(row => row.style.display = "");
+
+        // If no skills match in this table, hide the entire table
+        if (filteredRows.length === 0) {
+            table.style.display = "none";
+        } else {
+            table.style.display = "";
+        }
     });
-
-    // Sort rows by the closest match (simplified to sort by number of matched cells)
-    filteredRows.sort((a, b) => {
-        const aMatchCount = Array.from(a.getElementsByTagName("td")).filter(
-            (cell) => cell.textContent.toLowerCase().includes(input)
-        ).length;
-        const bMatchCount = Array.from(b.getElementsByTagName("td")).filter(
-            (cell) => cell.textContent.toLowerCase().includes(input)
-        ).length;
-        return bMatchCount - aMatchCount;
-    });
-
-    // Hide all rows initially
-    rows.forEach((row) => (row.style.display = "none"));
-
-    // Display the closest three matches
-    filteredRows.slice(0, 3).forEach((row) => (row.style.display = ""));
-
-    // Display the rest of the rows after the closest three
-    filteredRows.slice(3).forEach((row) => (row.style.display = ""));
 }
 
 // Function to add a skill row to the current routine table
