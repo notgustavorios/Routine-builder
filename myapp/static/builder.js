@@ -892,6 +892,8 @@ function updateRealTimeScoring() {
 
     // Calculate element group values based on level rules
     let elementGroupValues = {};
+    let totalElementGroupValue = 0.0;
+    
     Object.entries(groupScores).forEach(([group, value]) => {
         let displayValue = '0.0';
         
@@ -927,7 +929,13 @@ function updateRealTimeScoring() {
         
         elementGroupValues[group] = displayValue;
         $(`#group-${group}-value`).text(displayValue);
+        
+        // Add to total element group value
+        totalElementGroupValue += parseFloat(displayValue);
     });
+    
+    // Update the total element group value and set background color to light blue
+    $('#total-value').text(totalElementGroupValue.toFixed(1)).css('background-color', '#d0e4ff');
     
     $('#total-difficulty').text(totalDifficulty.toFixed(1));
 }
