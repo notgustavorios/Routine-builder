@@ -46,159 +46,88 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>{{ player.name }}'s Routines</h1>
-        <a href="{{ url_for('team.code_overview') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-code"></i> View Code
-        </a>
     </div>
 
-    <div class="row">
-        <!-- Player's Current Routines -->
-        <div class="col-md-8 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">Current Routines</h3>
-                </div>
-                <div class="card-body">
-                    {% if player_routines %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Level</th>
-                                        <th>Event</th>
-                                        <th>Competition Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for routine in player_routines %}
-                                        <tr>
-                                            <td>{{ routine.name or 'Unnamed Routine' }}</td>
-                                            <td>Level {{ routine.level }}</td>
-                                            <td>{{ routine.event_type or 'Not specified' }}</td>
-                                            <td>
-                                                {% if active_routines and routine.id in active_routines.values() %}
-                                                    {% set found_event_type = "" %}
-                                                    {% for event_type, routine_id in active_routines.items() %}
-                                                        {% if routine_id == routine.id %}
-                                                            {% set found_event_type = event_type %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    <span class="badge bg-success">Active for {{ found_event_type }}</span>
-                                                {% else %}
-                                                    <span class="badge bg-secondary">Not Active</span>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                {% if active_routines and routine.id in active_routines.values() %}
-                                                    <form method="POST" action="{{ url_for('team.unset_active_routine', player_id=player.id, routine_id=routine.id) }}" class="d-inline">
-                                                        <button type="submit" class="btn btn-sm btn-outline-secondary show-loader">Remove Active Status</button>
-                                                    </form>
-                                                {% else %}
-                                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#setActiveModal{{ routine.id }}">
-                                                        Set as Active
-                                                    </button>
-                                                    
-                                                    <!-- Set Active Modal -->
-                                                    <div class="modal fade" id="setActiveModal{{ routine.id }}" tabindex="-1" aria-hidden="true">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title">Set as Active Routine</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-                                                                <form method="POST" action="{{ url_for('team.set_active_routine', player_id=player.id, routine_id=routine.id) }}">
-                                                                    <div class="modal-body">
-                                                                        <div class="mb-3">
-                                                                            <label for="event_type{{ routine.id }}" class="form-label">Event Type</label>
-                                                                            <select class="form-select" id="event_type{{ routine.id }}" name="event_type" {% if routine.event_type %}disabled{% else %}required{% endif %}>
-                                                                                {% if routine.event_type %}
-                                                                                    <option value="{{ routine.event_type }}" selected>{{ routine.event_type }}</option>
-                                                                                {% else %}
-                                                                                    <option value="" disabled selected>Select event type</option>
-                                                                                    <option value="Floor">Floor</option>
-                                                                                    <option value="Pommel Horse">Pommel Horse</option>
-                                                                                    <option value="Rings">Rings</option>
-                                                                                    <option value="Vault">Vault</option>
-                                                                                    <option value="Parallel Bars">Parallel Bars</option>
-                                                                                    <option value="High Bar">High Bar</option>
-                                                                                {% endif %}
-                                                                            </select>
-                                                                            {% if routine.event_type %}
-                                                                                <input type="hidden" name="event_type" value="{{ routine.event_type }}">
-                                                                            {% endif %}
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                        <button type="submit" class="btn btn-primary show-loader">Set as Active</button>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
+    <div class="card">
+        <div class="card-body">
+            {% if routines %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Level</th>
+                                <th>Event</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for routine in routines %}
+                                <tr>
+                                    <td>{{ routine.name or 'Unnamed Routine' }}</td>
+                                    <td>{{ routine.level }}</td>
+                                    <td>{{ routine.event_type }}</td>
+                                    <td>
+                                        {% if active_routines and routine.id in active_routines.values() %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if active_routines and routine.id in active_routines.values() %}
+                                            <form method="POST" action="{{ url_for('team.unset_active_routine', player_id=player.id, routine_id=routine.id) }}" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary show-loader">Remove Active Status</button>
+                                            </form>
+                                        {% else %}
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#setActiveModal{{ routine.id }}">
+                                                Set as Active
+                                            </button>
+                                            
+                                            <!-- Set Active Modal -->
+                                            <div class="modal fade" id="setActiveModal{{ routine.id }}" tabindex="-1" aria-labelledby="setActiveModalLabel{{ routine.id }}" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="setActiveModalLabel{{ routine.id }}">Set Active Routine</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Are you sure you want to set this routine as active for {{ routine.event_type }}?</p>
+                                                            <p>This will replace any currently active routine for this event.</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form method="POST" action="{{ url_for('team.set_active_routine', player_id=player.id, routine_id=routine.id) }}">
+                                                                <button type="submit" class="btn btn-primary show-loader">Set as Active</button>
+                                                            </form>
                                                         </div>
                                                     </div>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <p class="text-center">No routines assigned to this player yet.</p>
-                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </div>
-
-        <!-- Assign Routine Form -->
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">Assign Routine</h3>
-                </div>
-                <div class="card-body">
-                    {% if user_routines %}
-                        <form method="POST" action="{{ url_for('team.assign_routine', player_id=player.id) }}" id="assignRoutineForm">
-                            <div class="mb-3">
-                                <label for="routine_id" class="form-label">Select Routine</label>
-                                <select class="form-select" id="routine_id" name="routine_id" required>
-                                    <option value="" disabled selected>Choose a routine</option>
-                                    {% for routine in user_routines %}
-                                        <option value="{{ routine.id }}">
-                                            {% if routine.name %}{{ routine.name }}{% else %}Unnamed Routine{% endif %} (Level {{ routine.level }})
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 show-loader" id="assignRoutineBtn">Assign to Player</button>
-                        </form>
-                    {% else %}
-                        <p class="text-center mb-3">You don't have any routines to assign.</p>
-                        <a href="{{ url_for('routines.create') }}" class="btn btn-primary w-100">Create a Routine</a>
-                    {% endif %}
-                </div>
-            </div>
+            {% else %}
+                <p class="text-center mb-0">No routines assigned yet. <a href="{{ url_for('routines.build_routine') }}">Create a new routine</a></p>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get all buttons with the show-loader class
-        const loaderButtons = document.querySelectorAll('.show-loader');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        
-        // Add click event listener to each button
-        loaderButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Show the loading overlay
-                loadingOverlay.style.display = 'flex';
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    // Show loading overlay when buttons with show-loader class are clicked
+    document.querySelectorAll('.show-loader').forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
         });
     });
+});
 </script>
 {% endblock %} 
