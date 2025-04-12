@@ -70,6 +70,7 @@ function addSkill(_name, _difficulty, _elementGroup) {
         emptyRow.find('td').eq(1).text(_difficulty);
         emptyRow.find('td').eq(2).text(_elementGroup);
         updateRealTimeScoring();
+        makeRowsDraggable(); // Make the new row draggable
         return true;
     } else {
         // No empty row found, create a new one
@@ -86,6 +87,7 @@ function addSkill(_name, _difficulty, _elementGroup) {
         // Insert before the add-row
         routineTable.find('.add-row').before(newRow);
         updateRealTimeScoring();
+        makeRowsDraggable(); // Make the new row draggable
         return true;
     }
 }
@@ -856,6 +858,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.overflow = 'auto';
         });
     });
+
+    // Add drag and drop event listeners to the routine table
+    const routineTable = document.querySelector('.routine-table');
+    if (routineTable) {
+        routineTable.addEventListener('dragover', handleDragOver);
+        routineTable.addEventListener('dragleave', handleDragLeave);
+        routineTable.addEventListener('drop', handleDrop);
+    }
+    
+    // Make rows draggable after table is created
+    makeRowsDraggable();
 });
 
 // Add these functions at the top level
@@ -945,4 +958,106 @@ function updateRealTimeScoring() {
     $('#total-value').text(totalElementGroupValue.toFixed(1)).css('background-color', '#d0e4ff');
     
     $('#total-difficulty').text(totalDifficulty.toFixed(1));
+}
+
+// Function to make rows draggable
+function makeRowsDraggable() {
+    const rows = document.querySelectorAll('.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
+    
+    rows.forEach(row => {
+        // Only make rows with content draggable
+        if (row.querySelector('td').textContent.trim() !== '') {
+            row.setAttribute('draggable', 'true');
+            row.classList.add('draggable-row');
+            
+            // Add drag start event
+            row.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', row.rowIndex);
+                row.classList.add('dragging');
+            });
+            
+            // Add drag end event
+            row.addEventListener('dragend', function() {
+                row.classList.remove('dragging');
+            });
+        }
+    });
+}
+
+// Function to handle drop events
+function handleDrop(e) {
+    e.preventDefault();
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    const toRow = e.target.closest('tr');
+    if (!toRow || !toRow.classList.contains('skill-odd-row') && !toRow.classList.contains('skill-even-row')) return;
+    
+    const toIndex = toRow.rowIndex;
+    const table = toRow.closest('table');
+    
+    // Get all skill rows
+    const rows = Array.from(table.querySelectorAll('tr.skill-odd-row, tr.skill-even-row'));
+    const fromRow = rows[fromIndex - 2]; // Subtract 2 for header rows
+    
+    // Only proceed if the source row has content
+    if (fromRow.querySelector('td').textContent.trim() === '') return;
+    
+    // Get the content of the row being moved
+    const movingContent = Array.from(fromRow.querySelectorAll('td')).map(td => td.textContent);
+    
+    // Create a temporary array to store the new order
+    const newOrder = [];
+    
+    // First, add all rows before the target position
+    for (let i = 0; i < toIndex - 2; i++) {
+        if (i !== fromIndex - 2) { // Skip the row being moved
+            newOrder.push(Array.from(rows[i].querySelectorAll('td')).map(td => td.textContent));
+        }
+    }
+    
+    // Add the moved row at the target position
+    newOrder.push(movingContent);
+    
+    // Then add all remaining rows, skipping the moved row if it's after the target
+    for (let i = toIndex - 2; i < rows.length; i++) {
+        if (i !== fromIndex - 2) { // Skip the row being moved
+            newOrder.push(Array.from(rows[i].querySelectorAll('td')).map(td => td.textContent));
+        }
+    }
+    
+    // Update all rows with the new order and restore proper styling
+    rows.forEach((row, index) => {
+        // Remove any drag-over styling
+        row.classList.remove('drag-over');
+        
+        if (index < newOrder.length) {
+            row.querySelectorAll('td').forEach((td, i) => {
+                td.textContent = newOrder[index][i];
+            });
+        } else {
+            // Clear any remaining rows
+            row.querySelectorAll('td').forEach(td => {
+                td.textContent = '';
+            });
+        }
+    });
+    
+    // Update real-time scoring
+    updateRealTimeScoring();
+}
+
+// Function to handle drag over events
+function handleDragOver(e) {
+    e.preventDefault();
+    const row = e.target.closest('tr');
+    if (row && (row.classList.contains('skill-odd-row') || row.classList.contains('skill-even-row'))) {
+        row.classList.add('drag-over');
+    }
+}
+
+// Function to handle drag leave events
+function handleDragLeave(e) {
+    const row = e.target.closest('tr');
+    if (row) {
+        row.classList.remove('drag-over');
+    }
 }
