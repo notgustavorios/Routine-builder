@@ -16,6 +16,8 @@ class Routine(db.Model):
     name = db.Column(db.String(100), nullable=True)
     level = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=True)
+    event_type = db.Column(db.String(50), nullable=True)  # e.g. "Floor", "Vault", etc.
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationship

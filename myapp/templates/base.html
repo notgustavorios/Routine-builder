@@ -158,6 +158,11 @@
                     <li class="nav-item {% if request.endpoint == 'auth.index' %}active{% endif %}">
                         <a class="nav-link" href="{{ url_for('auth.index') }}">Home</a>
                     </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item {% if request.endpoint and request.endpoint.startswith('team.') %}active{% endif %}">
+                        <a class="nav-link" href="{{ url_for('team.list_teams') }}">Teams</a>
+                    </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}

@@ -24,8 +24,9 @@ class User(UserMixin, db.Model):
     google_profile_pic = db.Column(db.String(200))
     is_google_user = db.Column(db.Boolean, default=False)
     
-    # Relationship
+    # Relationships
     routines = db.relationship('Routine', backref='user', lazy=True)
+    teams = db.relationship('Team', backref='owner', lazy=True)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -43,9 +43,11 @@ def create_app(config_object='myapp.config.Config'):
     
     # Register blueprints
     from myapp.routes import auth_bp, routines_bp, scoring_bp
+    from myapp.routes.team import team_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(routines_bp)
     app.register_blueprint(scoring_bp)
+    app.register_blueprint(team_bp)
     
     # Setup user loader
     from myapp.models.user import User

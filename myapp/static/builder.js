@@ -842,11 +842,18 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(() => {
             alert('Routine saved successfully!');
+            // Clean up UI state
             document.getElementById('popupOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Reset form
+            document.getElementById('routineForm').reset();
         })
         .catch(error => {
             console.error('Error saving routine:', error);
             alert('Failed to save routine.');
+            // Clean up UI state even on error
+            document.getElementById('popupOverlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
         });
     });
 });
