@@ -755,9 +755,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (editingRow) {
                 // Update the editing row with the selected skill
-                $(editingRow).find('td').eq(0).text(skillData.name);
-                $(editingRow).find('td').eq(1).text(skillData.value);
-                $(editingRow).find('td').eq(2).text(skillData.elementGroup);
+                const cells = $(editingRow).find('td');
+                cells.eq(0).text(skillData.name);
+                cells.eq(1).text(skillData.value);
+                cells.eq(2).text(skillData.elementGroup);
                 $(editingRow).removeClass('editing-row');   
                 editingRow = null;
                 updateRealTimeScoring(); // Update scoring after editing

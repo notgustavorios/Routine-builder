@@ -38,12 +38,16 @@
     
 }
 .routine-table td {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     padding: 8px;
     vertical-align: middle;
     text-align: left;
+    font-size: 14px;
+    line-height: 1.2;
+    width: 100%;
+    display: table-cell;
+    white-space: normal;
+    word-wrap: break-word;
+    height: 100%;
 }
 
 .routine-table .add-row {
