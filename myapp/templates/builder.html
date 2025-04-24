@@ -43,57 +43,98 @@ NGA Routine Builder
     <button id="submit-routine-request" style="display: none;">Submit</button>
 </div>
 
-<div id="grid">
-    <div class="item" id="real-time-scoring">
-        <h3>Routine Analysis</h3>
-        <table id="element-group-table">
-            <thead>
-                <tr>
-                    <th>Element Group</th>
-                    <th>Value</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Group I</td>
-                    <td id="group-1-value">0.0</td>
-                </tr>
-                <tr>
-                    <td>Group II</td>
-                    <td id="group-2-value">0.0</td>
-                </tr>
-                <tr>
-                    <td>Group III</td>
-                    <td id="group-3-value">0.0</td>
-                </tr>
-                <tr>
-                    <td>Group IV</td>
-                    <td id="group-4-value">0.0</td>
-                </tr>
-                <tr>
-                    <td>Total</td>
-                    <td id="total-value">0.0</td>
-                </tr>
-            </tbody>
-        </table>
-        <div id="difficulty-display">
-            <h4>Total Difficulty:</h4>
-            <span id="total-difficulty">0.0</span>
-        </div>
-    </div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Routine Analysis Panel -->
+        <div class="col-lg-3" id="real-time-scoring">
+            <h3>Routine Analysis</h3>
+            <!-- Element Group Table -->
+            <table id="element-group-table">
+                <thead>
+                    <tr>
+                        <th>Element Group</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Group I</td>
+                        <td id="group-1-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Group II</td>
+                        <td id="group-2-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Group III</td>
+                        <td id="group-3-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Group IV</td>
+                        <td id="group-4-value">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Element Group Total</td>
+                        <td id="total-value">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
 
-    <div class="item" id="item-1">
-        <!-- Routine tables are appended to this div -->
-        <div id="routine-tables-container" class="vertical"></div>
-    </div>
-    <!-- Skill boxes -->
-    <div class="item" id="skill-box">
-        <div class="search-container">
-            <input type="text" id="searchBar" placeholder="Search..." onkeyup="searchTable()">
+            <!-- Skills Status Table -->
+            <table id="skills-status-table">
+                <tbody>
+                    <tr>
+                        <td>Remaining Skills</td>
+                        <td id="remaining-skills">8</td>
+                    </tr>
+                    <tr>
+                        <td>FIG Skills</td>
+                        <td id="fig-skills-requirement">0/0</td>
+                    </tr>
+                    <tr>
+                        <td>Remaining Super Skills</td>
+                        <td id="remaining-super-skills">0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Difficulty Display -->
+            <table id="difficulty-display">
+                <tbody>
+                    <tr>
+                        <td>Difficulty</td>
+                        <td id="difficulty">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Final Score Display -->
+            <table id="final-score-display">
+                <tbody>
+                    <tr>
+                        <td>Start Value:</td>
+                        <td id="start-score">0.0</td>
+                    </tr>
+                    <tr>
+                        <td>Final Score:</td>
+                        <td id="final-score">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="scoring-messages"></div>
         </div>
 
-        <!-- The BIG skills table -->
-        <div id="large-table-container">
+        <!-- Routine Table Container -->
+        <div class="col-lg-9 col-lg-shrink-5" id="item-1">
+            <div id="routine-tables-container" class="vertical"></div>
+        </div>
+
+        <!-- Skill Box -->
+        <div class="col-lg-4 d-none" id="skill-box">
+            <div class="search-container">
+                <input type="text" id="searchBar" placeholder="Search..." onkeyup="searchTable()">
+            </div>
+            <div id="large-table-container"></div>
         </div>
     </div>
 </div>

@@ -4692,5 +4692,49 @@
         }
       ]
     }
+  },
+  "Level_1_Mushroom": {
+    "Circles": {
+      "name": "Circles",
+      "skills": [
+        {
+        "name": "1/4 Circle through Support",
+        "difficulty": 0.0,
+        "element_group": 1
+        },
+        {
+          "name": "3/4 Circle through Support",
+          "difficulty": 0.0,
+          "element_group": 1
+        },
+        {
+          "name": "Full Circle through Support",
+          "difficulty": 0.0,
+          "element_group": 1
+        },
+        {
+          "name": "1/2 Circle Finish through Support Dismount",
+          "difficulty": 0.0,
+          "element_group": 1
+        }
+      ]
+    }
+  },
+  "Level_2_3_Mushroom": {
+    "Circles": {
+      "name": "Circles",
+      "skills": [
+          {
+          "name": "Full Circle through Support",
+          "difficulty": 0.0,
+          "element_group": 1
+        },
+        {
+          "name": "1/2 Circle Finish through Support Dismount",
+            "difficulty": 0.0,
+          "element_group": 1
+        }    
+      ]
+    }
   }
 }

@@ -239,7 +239,6 @@ td {
     }
 }
 
-
 .title {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -247,38 +246,32 @@ td {
     border: 1px solid black;
 }
 
-#grid {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    width: 100%;
-    height: 100vh;
-    padding: 0 0 0 1rem; /* Add left padding to the grid */
-    gap: 2rem;
-}
-
-/* When skill-box is visible */
-#grid:has(#skill-box:not([style*="display: none"])) {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-}
-
-.item {
-    height: 100%;
-    overflow: auto;
-}
-
 #real-time-scoring {
-    min-width: 200px;
     display: none; /* Hide by default */
     padding: 20px;
     background-color: white;
-    margin-right: 1rem;
-    margin-left: 0; /* Ensure no left margin */
+    height: 100%;
+    overflow-y: auto;
 }
 
 #real-time-scoring h3 {
     margin-bottom: 20px;
     color: #333;
     text-align: center;
+}
+
+#item-1 {
+    min-width: 0; /* Allows the element to shrink below its content size */
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+#skill-box {
+    display: none; /* Hide by default */
+    background-color: #f5f5f5;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 #element-group-table {
@@ -324,20 +317,6 @@ td {
     font-weight: bold;
     font-family: monospace;
     color: #007bff;
-}
-
-#item-1 {
-    min-width: 0; /* Allows the element to shrink below its content size */
-    justify-self: center;
-    width: 100%;
-    max-width: 1200px; /* Adjust this value based on your needs */
-}
-
-#skill-box {
-    display: none; /* Hide by default */
-    min-width: 300px;
-    max-width: 400px;
-    background-color: #f5f5f5;
 }
 
 .close-button {
@@ -482,4 +461,152 @@ td {
 .drag-over {
     background-color: #e0e0e0 !important;
     border-top: 2px solid blue;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    #grid {
+        grid-template-columns: 1fr !important;
+        padding: 0.5rem !important;
+        gap: 1rem !important;
+    }
+
+    #real-time-scoring {
+        position: relative !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10px !important;
+    }
+
+    .routine-table {
+        font-size: 14px !important;
+    }
+
+    .routine-table td, 
+    .routine-table th {
+        padding: 6px !important;
+        font-size: 14px !important;
+        min-width: 80px !important;
+    }
+
+    #routine-tables-container.grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .skill-table {
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+
+    .skill-table td,
+    .skill-table th {
+        padding: 6px !important;
+        font-size: 14px !important;
+    }
+
+    #element-group-table,
+    #skills-status-table,
+    #difficulty-display {
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+
+    .buttons-container {
+        position: fixed !important;
+        bottom: 10px !important;
+        right: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 5px !important;
+    }
+
+    .circle-button {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 12px !important;
+    }
+
+    .popup {
+        width: 95% !important;
+        max-height: 80vh !important;
+        padding: 15px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .routine-table td, 
+    .routine-table th {
+        padding: 4px !important;
+        font-size: 12px !important;
+        min-width: 60px !important;
+    }
+
+    .skill-table td,
+    .skill-table th {
+        padding: 4px !important;
+        font-size: 12px !important;
+    }
+
+    #element-group-table td,
+    #element-group-table th,
+    #skills-status-table td,
+    #skills-status-table th,
+    #difficulty-display td,
+    #difficulty-display th {
+        padding: 4px !important;
+        font-size: 12px !important;
+    }
+
+    .circle-button {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 11px !important;
+    }
+}
+
+/* Ensure tables are scrollable horizontally on mobile if needed */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+/* Improve table layout */
+.routine-table,
+.skill-table {
+    width: 100%;
+    min-width: 300px;
+}
+
+/* Ensure proper spacing in grid layouts */
+#routine-tables-container {
+    gap: 1rem;
+    padding: 0.5rem;
+}
+
+/* Improve button accessibility on touch devices */
+button,
+.circle-button,
+.skill-entry {
+    min-height: 44px;
+    touch-action: manipulation;
+}
+
+/* Bootstrap column override for dynamic resizing */
+@media (min-width: 992px) {
+    .col-lg-shrink-5 {
+        flex: 0 0 41.666667%;
+        max-width: 41.666667%;
+    }
+    
+    /* When skill box is hidden, routine table takes 9 columns */
+    .col-lg-9:not(.col-lg-shrink-5) {
+        flex: 0 0 75%;
+        max-width: 75%;
+    }
+}
+
+/* Skill box display handling */
+#skill-box.show {
+    display: block !important;
 }

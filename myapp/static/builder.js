@@ -216,7 +216,20 @@ async function loadSkillsForEvent(level, event) {
     };
     
     // Map the event name
-    const apiEvent = eventMap[event] || event;
+    let apiEvent = eventMap[event] || event;
+
+    // Special handling for Mushroom event based on level
+    const levelNumber = typeof level === 'string' ? 
+        parseInt(level.replace('Level ', '')) : 
+        parseInt(level);
+
+    if (event === 'Mushroom') {
+        if (levelNumber === 1) {
+            apiEvent = 'Level_1_Mushroom';
+        } else if (levelNumber === 2 || levelNumber === 3) {
+            apiEvent = 'Level_2_3_Mushroom';
+        }
+    }
 
     const eventNameContainer = document.createElement('div');   
     eventNameContainer.id = 'api-event-name';
@@ -236,15 +249,6 @@ async function loadSkillsForEvent(level, event) {
         }
 
         const eventData = data[apiEvent];
-        
-        // Extract level number, handling both string and number formats
-        const levelNumber = typeof level === 'string' ? 
-            parseInt(level.replace('Level ', '')) : 
-            parseInt(level);
-        
-        if (isNaN(levelNumber)) {
-            throw new Error('Invalid level format');
-        }
         
         // Create tables for each element group
         for (const [groupKey, groupData] of Object.entries(eventData)) {
@@ -420,6 +424,9 @@ function createRoutineTable(level, event) {
                     </table>
                 `;
     $("#routine-tables-container").append(tableHTML);
+    
+    // Initialize scoring immediately after creating table
+    updateRealTimeScoring();
 }
 function getRoutineFormData() {
     const routineName = document.getElementById("routineName").value.trim();
@@ -451,7 +458,7 @@ function createContextMenu(x, y, row) {
                 $(editingRow).removeClass('editing-row');
                 editingRow = null;
                 $('.context-menu').remove();
-                $("#skill-box").hide();
+                hideSkillBox();
                 $("#floor, #pommel, #Mushroom, #rings, #vault, #pbars, #highbar").hide();
             });
         
@@ -474,12 +481,9 @@ function createContextMenu(x, y, row) {
         .addClass('context-menu-item')
         .click(function(e) {
             e.stopPropagation();
-            // Remove highlight from any previously edited row
             $('.editing-row').removeClass('editing-row');
-            // Add highlight to current row
             $(row).addClass('editing-row');
             editingRow = row;
-            // Get the level and event from the routine table header
             const headerText = $(row).closest('.routine-table').find("th").first().text();
             const match = headerText.match(/Level (\d+) (.+) Routine/);
             if (!match) {
@@ -490,13 +494,8 @@ function createContextMenu(x, y, row) {
             const level = parseInt(match[1]);
             const event = match[2].trim();
             
-            // Show skill selection interface
-            $("#skill-box").show();
-            $(".item").css("flex", "1");
-            
-            // Load skills for this event and level
+            showSkillBox();
             loadSkillsForEvent(level, event);
-            
             $('.context-menu').remove();
         });
 
@@ -615,7 +614,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Submit routine request
         if (e.target.matches('#submit-routine-request') && selectedLevel && selectedEvent) {
-            const event = (selectedEvent === 'PH' && ['Level 4', 'Level 5'].includes(selectedLevel)) 
+            const levelNumber = parseInt(selectedLevel.replace('Level ', ''));
+            const event = (selectedEvent === 'PH' && levelNumber <= 5) 
                 ? 'Mushroom' 
                 : selectedEvent;
             createRoutineTable(selectedLevel, event);
@@ -635,14 +635,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const routineInfo = parseRoutineHeader(header);
             if (!routineInfo) return;
 
-            document.getElementById('skill-box').style.display = 'block';
-            document.querySelectorAll('.item').forEach(item => item.style.flex = '1');
+            showSkillBox();
             loadSkillsForEvent(routineInfo.level, routineInfo.event);
         }
 
         // Close button
         if (e.target.matches('.close-button')) {
-            document.getElementById('skill-box').style.display = 'none';
+            hideSkillBox();
             document.getElementById('large-table-container').style.display = 'none';
         }
 
@@ -763,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editingRow = null;
                 updateRealTimeScoring(); // Update scoring after editing
                 // Hide the skill box after editing
-                document.getElementById('skill-box').style.display = 'none';
+                hideSkillBox();
                 document.getElementById('large-table-container').style.display = 'none';
             } else {
                 // Add the skill using the addSkill function
@@ -780,8 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const routineInfo = parseRoutineHeader(header);
             if (!routineInfo) return;
 
-            document.getElementById('skill-box').style.display = 'block';
-            document.querySelectorAll('.item').forEach(item => item.style.flex = '1');
+            showSkillBox();
             loadSkillsForEvent(routineInfo.level, routineInfo.event);
         }
     });
@@ -874,18 +872,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Add these functions at the top level
 function updateRealTimeScoring() {
-    const rows = $('.routine-table tr.skill-odd-row, .routine-table tr.skill-even-row');
+    // Get the current table rows and setup initial variables
+    const rows = $('.routine-table tr.skill-odd-row, tr.skill-even-row');
     let groupScores = {1: null, 2: null, 3: null, 4: null};
     let totalDifficulty = 0;
     let skillBank = new Set();
     let numSuperSkills = 0;
-
+    let numFigSkills = 0;
+    
     // Get level from the routine table header
     const headerText = $('.routine-table .header-row th').first().text();
     const levelMatch = headerText.match(/Level (\d+)/);
     if (!levelMatch) return;
     const level = parseInt(levelMatch[1]);
 
+    // Constants (matching Python constants)
+    const EXERCISE_PRESENTATION = {
+        1: 8.0, 2: 8.0, 3: 8.0, 4: 8.0, 5: 8.0,
+        6: 8.0, 7: 8.0, 8: 8.0, 9: 8.0, 10: 7.5
+    };
+
+    const SUPERSKILLS_ALLOWED = {
+        1: 8, 2: 8, 3: 8, 4: 6, 5: 5,
+        6: 4, 7: 3, 8: 2, 9: 1, 10: 0
+    };
+
+    const SHORT_ROUTINE = {
+        9: 0.0, 8: 0.0, 7: 0.0, 6: 0.0, 5: 3.0,
+        4: 4.0, 3: 5.0, 2: 6.0, 1: 7.0, 0: 10.0
+    };
+
+    // Add REQUIRED_FIG constant
+    const REQUIRED_FIG = {
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 1,
+        5: 2,
+        6: 3,
+        7: 4,
+        8: 4,
+        9: 5,
+        10: 6,
+    };
+
+    // Process existing skills
     rows.each(function() {
         const cells = $(this).find('td');
         if (cells.length >= 3 && cells.eq(0).text().trim() !== '') {
@@ -893,28 +924,29 @@ function updateRealTimeScoring() {
             const difficulty = parseFloat(cells.eq(1).text()) || 0;
             const elementGroup = parseInt(cells.eq(2).text()) || 0;
             
-            // Only count each unique skill once for difficulty
+            // Only count unique skills
             if (!skillBank.has(skillName)) {
                 if (difficulty === 0.0) {
                     numSuperSkills++;
+                } else if (difficulty > 0) {
+                    numFigSkills++;
                 }
                 totalDifficulty += difficulty;
                 skillBank.add(skillName);
             }
 
-            // Update element group credit based on highest value
+            // Update element group credit
             if (elementGroup >= 1 && elementGroup <= 4) {
-                if (groupScores[elementGroup] === null || difficulty >= groupScores[elementGroup]) {
+                if (groupScores[elementGroup] === null || 
+                    difficulty >= groupScores[elementGroup]) {
                     groupScores[elementGroup] = difficulty;
                 }
             }
         }
     });
 
-    // Calculate element group values based on level rules
-    let elementGroupValues = {};
-    let totalElementGroupValue = 0.0;
-    
+    // Calculate element group values and total
+    let totalElementGroupValue = 0;
     Object.entries(groupScores).forEach(([group, value]) => {
         let displayValue = '0.0';
         
@@ -925,7 +957,6 @@ function updateRealTimeScoring() {
                 case 3:
                     displayValue = value >= 0.0 ? '0.5' : '0.0';
                     break;
-                    
                 case 4:
                 case 5:
                 case 6:
@@ -934,13 +965,13 @@ function updateRealTimeScoring() {
                     if (value === 0.0) displayValue = '0.3';
                     else if (value >= 0.1) displayValue = '0.5';
                     break;
-                    
                 case 9:
                     if (value === 0.0) displayValue = '0.3';
-                    else if (value === 0.1) displayValue = group === '1' ? '0.5' : '0.3';
+                    else if (value === 0.1) {
+                        displayValue = group === '1' ? '0.5' : '0.3';
+                    }
                     else if (value >= 0.2) displayValue = '0.5';
                     break;
-                    
                 case 10:
                     if (value === 0.0 || value === 0.1 || value === 0.2) displayValue = '0.3';
                     else if (value >= 0.3) displayValue = '0.5';
@@ -948,17 +979,60 @@ function updateRealTimeScoring() {
             }
         }
         
-        elementGroupValues[group] = displayValue;
+        // Update UI
         $(`#group-${group}-value`).text(displayValue);
-        
-        // Add to total element group value
         totalElementGroupValue += parseFloat(displayValue);
     });
-    
-    // Update the total element group value and set background color to light blue
-    $('#total-value').text(totalElementGroupValue.toFixed(1)).css('background-color', '#d0e4ff');
-    
+
+    // Calculate remaining skills (max 8 skills)
+    const maxSkills = 8;
+    const totalSkills = skillBank.size;
+    const remainingSkills = maxSkills - totalSkills;
+
+    // Calculate remaining super skills based on level allowance
+    const allowedSuperSkills = SUPERSKILLS_ALLOWED[level];
+    const remainingSuperSkills = Math.max(0, allowedSuperSkills - numSuperSkills);
+
+    // Calculate start value (before deductions)
+    const exercisePresentation = EXERCISE_PRESENTATION[level] || 8.0;
+    const startValue = exercisePresentation + totalDifficulty + totalElementGroupValue;
+
+    // Calculate FIG skills deduction
+    const requiredFigSkills = REQUIRED_FIG[level] || 0;
+    const missingFigSkills = Math.max(0, requiredFigSkills - numFigSkills);
+    const figSkillsDeduction = missingFigSkills * -0.5;
+
+    // Calculate short routine deduction
+    const countedSuperSkills = Math.min(numSuperSkills, SUPERSKILLS_ALLOWED[level]);
+    const numCountingSkills = (skillBank.size - numSuperSkills) + countedSuperSkills;
+    const shortRoutineDeduction = -(SHORT_ROUTINE[numCountingSkills] || 0); // Make negative since it's a deduction
+
+    // Calculate final score
+    const finalScore = startValue + figSkillsDeduction + shortRoutineDeduction;
+
+    // Update all UI elements
+    $('#total-value').text(totalElementGroupValue.toFixed(1));
     $('#total-difficulty').text(totalDifficulty.toFixed(1));
+    $('#remaining-skills').text(remainingSkills);
+    $('#remaining-super-skills').text(remainingSuperSkills);
+    $('#fig-skills-requirement').text(`${numFigSkills}/${requiredFigSkills}`);
+    $('#difficulty').text(totalDifficulty.toFixed(1));
+    
+    // Update start value and final score
+    $('#start-score').text(startValue.toFixed(1));
+    $('#final-score').text(finalScore.toFixed(1));
+
+    // Optional: Add messages to explain deductions
+    const messages = [];
+    if (figSkillsDeduction < 0) {
+        messages.push(`Missing FIG skills deduction: ${figSkillsDeduction.toFixed(1)}`);
+    }
+    if (shortRoutineDeduction < 0) {
+        messages.push(`Short routine deduction: ${shortRoutineDeduction.toFixed(1)}`);
+    }
+
+    // Display deduction messages if you have a container for them
+    $('#scoring-messages').html(messages.join('<br>'));
 }
 
 // Function to make rows draggable
@@ -1061,4 +1135,24 @@ function handleDragLeave(e) {
     if (row) {
         row.classList.remove('drag-over');
     }
+}
+
+// Function to show skill box and adjust columns
+function showSkillBox() {
+    const skillBox = document.getElementById('skill-box');
+    const routineTable = document.getElementById('item-1');
+    
+    skillBox.classList.remove('d-none');
+    skillBox.classList.add('show');
+    routineTable.classList.add('col-lg-shrink-5');
+}
+
+// Function to hide skill box and adjust columns
+function hideSkillBox() {
+    const skillBox = document.getElementById('skill-box');
+    const routineTable = document.getElementById('item-1');
+    
+    skillBox.classList.add('d-none');
+    skillBox.classList.remove('show');
+    routineTable.classList.remove('col-lg-shrink-5');
 }
