@@ -338,13 +338,27 @@ td {
 }
 
 .search-container {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    padding: 10px;
     margin-bottom: 20px;
+    z-index: 1000;
+    border-bottom: 1px solid #dee2e6;
 }
 
 #searchBar {
     width: 100%;
     padding: 10px;
     font-size: 16px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+#searchBar:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
 .context-menu {
@@ -609,4 +623,24 @@ button,
 /* Skill box display handling */
 #skill-box.show {
     display: block !important;
+}
+
+#large-table-container {
+    padding-top: 10px;
+}
+
+@keyframes highlightRow {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(255, 255, 0, 0.3);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.highlight-animation {
+    animation: highlightRow 1s ease-in-out;
 }

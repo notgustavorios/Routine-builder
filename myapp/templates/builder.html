@@ -10,6 +10,7 @@ NGA Routine Builder
 {% endblock %}
 
 {% block content %}
+{% if not existing_routine %}
 <!-- Beginning prompt to select Level and Event -->
 <div id="add-routine-table-container">
     <div class="level-selection">
@@ -42,6 +43,7 @@ NGA Routine Builder
 
     <button id="submit-routine-request" style="display: none;">Submit</button>
 </div>
+{% endif %}
 
 <div class="container-fluid">
     <div class="row">
@@ -125,8 +127,48 @@ NGA Routine Builder
         </div>
 
         <!-- Routine Table Container -->
-        <div class="col-lg-9 col-lg-shrink-5" id="item-1">
-            <div id="routine-tables-container" class="vertical"></div>
+        <div class="col-lg-9" id="item-1">
+            <div id="routine-tables-container" class="vertical">
+                {% if existing_routine %}
+                <table class="routine-table">
+                    <tr class="header-row">
+                        <th colspan="3">Level {{ level }} {{ event }} Routine</th>
+                    </tr>
+                    <tr class="header-row" id="subheader">
+                        <th>Skills</th>
+                        <th>Difficulty Value</th>
+                        <th>Element Group</th>
+                    </tr>
+                    {% for skill, position in skills %}
+                        {% if loop.index0 % 2 == 0 %}
+                            <tr class="skill-even-row">
+                                <td>{{ skill.name }}</td>
+                                <td>{{ skill.value }}</td>
+                                <td>{{ skill.element_group }}</td>
+                            </tr>
+                        {% else %}
+                            <tr class="skill-odd-row">
+                                <td>{{ skill.name }}</td>
+                                <td>{{ skill.value }}</td>
+                                <td>{{ skill.element_group }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <tr class="add-row">
+                        <td>
+                            <button class="add-skill-button">Add a Skill</button>
+                        </td>
+                        <td>
+                            <button class="delete-skill-button">Delete last skill</button>
+                        </td>
+                        <td>
+                            <button class="calculate-score-button">Calculate score</button>
+                            <button id="openPopup" class="save-routine-button">Save routine</button>
+                        </td>
+                    </tr>
+                </table>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Skill Box -->
@@ -145,7 +187,7 @@ NGA Routine Builder
         <form id="routineForm" class="row g-3 needs-validation" novalidate>
             <div class="col-md-4">
                 <label for="validationCustom01" class="form-label">Routine Name</label>
-                <input type="text" class="form-control validationCustom01" id="routineName" placeholder="Name this routine! Ex. Chris PH" value="" required>
+                <input type="text" class="form-control validationCustom01" id="routineName" placeholder="Name this routine! Ex. Chris PH" value="{% if routine %}{{ routine.name }}{% endif %}" required>
                 <div class="valid-feedback">
                     Looks good!
                 </div>
@@ -154,8 +196,8 @@ NGA Routine Builder
                 <label for="validationCustom04" class="form-label">Level</label>
                 <select class="form-select validationCustom04" id="routineLevel" required>
                     <option selected disabled value="">Choose...</option>
-                    {% for level in range(1, 11) %}
-                    <option>Level {{ level }}</option>
+                    {% for level_num in range(1, 11) %}
+                    <option {% if level == 'Level ' ~ level_num %}selected{% endif %}>Level {{ level_num }}</option>
                     {% endfor %}
                 </select>
                 <div class="invalid-feedback">
@@ -166,13 +208,13 @@ NGA Routine Builder
                 <label for="validationCustom04" class="form-label">Event</label>
                 <select class="form-select validationCustom04" id="routineEvent" required>
                     <option selected disabled value="">Choose...</option>
-                    <option>FX</option>
-                    <option>PH</option>
-                    <option>Mushroom</option>
-                    <option>SR</option>
-                    <option>VT</option>
-                    <option>PB</option>
-                    <option>HB</option>
+                    <option {% if event == 'FX' %}selected{% endif %}>FX</option>
+                    <option {% if event == 'PH' %}selected{% endif %}>PH</option>
+                    <option {% if event == 'Mushroom' %}selected{% endif %}>Mushroom</option>
+                    <option {% if event == 'SR' %}selected{% endif %}>SR</option>
+                    <option {% if event == 'VT' %}selected{% endif %}>VT</option>
+                    <option {% if event == 'PB' %}selected{% endif %}>PB</option>
+                    <option {% if event == 'HB' %}selected{% endif %}>HB</option>
                 </select>
                 <div class="invalid-feedback">
                     Please select a valid event.
@@ -185,11 +227,20 @@ NGA Routine Builder
         </form>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 {{ super() }} <!-- Retains Bootstrap scripts -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="{{ url_for('static', filename='builder.js') }}"></script>
+<script>
+    {% if existing_routine %}
+    document.addEventListener('DOMContentLoaded', () => {
+        // Show the routine table and scoring panel for existing routines
+        $('#routine-tables-container').show();
+        $('#real-time-scoring').show();
+        updateRealTimeScoring();
+    });
+    {% endif %}
+</script>
 {% endblock %}

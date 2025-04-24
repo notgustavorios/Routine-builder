@@ -4,6 +4,19 @@ let editingRow = null; // Track which row is being edited
 // Global variable to store the skills data
 let skillsData = null;
 
+// Store previous values for comparison
+let previousValues = {
+    groups: {1: '0.0', 2: '0.0', 3: '0.0', 4: '0.0'},
+    totalValue: '0.0',
+    totalDifficulty: '0.0',
+    remainingSkills: '8',
+    figSkills: '0/0',
+    remainingSuperSkills: '0',
+    difficulty: '0.0',
+    startScore: '0.0',
+    finalScore: '0.0'
+};
+
 function searchTable() {
     const input = document.getElementById("searchBar").value.toLowerCase();
     const tables = document.querySelectorAll(".skill-table");
@@ -1010,17 +1023,52 @@ function updateRealTimeScoring() {
     // Calculate final score
     const finalScore = startValue + figSkillsDeduction + shortRoutineDeduction;
 
-    // Update all UI elements
-    $('#total-value').text(totalElementGroupValue.toFixed(1));
-    $('#total-difficulty').text(totalDifficulty.toFixed(1));
-    $('#remaining-skills').text(remainingSkills);
-    $('#remaining-super-skills').text(remainingSuperSkills);
-    $('#fig-skills-requirement').text(`${numFigSkills}/${requiredFigSkills}`);
-    $('#difficulty').text(totalDifficulty.toFixed(1));
-    
-    // Update start value and final score
-    $('#start-score').text(startValue.toFixed(1));
-    $('#final-score').text(finalScore.toFixed(1));
+    // Update UI elements with highlighting
+    for (let i = 1; i <= 4; i++) {
+        const displayValue = $(`#group-${i}-value`).text();
+        highlightRowIfChanged(`group-${i}-value`, displayValue, previousValues.groups[i]);
+        previousValues.groups[i] = displayValue;
+    }
+
+    const newTotalValue = totalElementGroupValue.toFixed(1);
+    highlightRowIfChanged('total-value', newTotalValue, previousValues.totalValue);
+    $('#total-value').text(newTotalValue);
+    previousValues.totalValue = newTotalValue;
+
+    const newTotalDifficulty = totalDifficulty.toFixed(1);
+    highlightRowIfChanged('total-difficulty', newTotalDifficulty, previousValues.totalDifficulty);
+    $('#total-difficulty').text(newTotalDifficulty);
+    previousValues.totalDifficulty = newTotalDifficulty;
+
+    const newRemainingSkills = remainingSkills.toString();
+    highlightRowIfChanged('remaining-skills', newRemainingSkills, previousValues.remainingSkills);
+    $('#remaining-skills').text(newRemainingSkills);
+    previousValues.remainingSkills = newRemainingSkills;
+
+    const newFigSkills = `${numFigSkills}/${requiredFigSkills}`;
+    highlightRowIfChanged('fig-skills-requirement', newFigSkills, previousValues.figSkills);
+    $('#fig-skills-requirement').text(newFigSkills);
+    previousValues.figSkills = newFigSkills;
+
+    const newRemainingSuperSkills = remainingSuperSkills.toString();
+    highlightRowIfChanged('remaining-super-skills', newRemainingSuperSkills, previousValues.remainingSuperSkills);
+    $('#remaining-super-skills').text(newRemainingSuperSkills);
+    previousValues.remainingSuperSkills = newRemainingSuperSkills;
+
+    const newDifficulty = totalDifficulty.toFixed(1);
+    highlightRowIfChanged('difficulty', newDifficulty, previousValues.difficulty);
+    $('#difficulty').text(newDifficulty);
+    previousValues.difficulty = newDifficulty;
+
+    const newStartScore = startValue.toFixed(1);
+    highlightRowIfChanged('start-score', newStartScore, previousValues.startScore);
+    $('#start-score').text(newStartScore);
+    previousValues.startScore = newStartScore;
+
+    const newFinalScore = finalScore.toFixed(1);
+    highlightRowIfChanged('final-score', newFinalScore, previousValues.finalScore);
+    $('#final-score').text(newFinalScore);
+    previousValues.finalScore = newFinalScore;
 
     // Optional: Add messages to explain deductions
     const messages = [];
@@ -1155,4 +1203,16 @@ function hideSkillBox() {
     skillBox.classList.add('d-none');
     skillBox.classList.remove('show');
     routineTable.classList.remove('col-lg-shrink-5');
+}
+
+// Helper function to highlight a row when its value changes
+function highlightRowIfChanged(elementId, newValue, previousValue) {
+    if (newValue !== previousValue) {
+        const element = document.getElementById(elementId);
+        const row = element.closest('tr');
+        row.classList.remove('highlight-animation');
+        // Force a reflow to restart the animation
+        void row.offsetWidth;
+        row.classList.add('highlight-animation');
+    }
 }

@@ -177,7 +177,7 @@ def view_routine(routine_id):
         routine_skills, Skill.id == routine_skills.c.skill_id
     ).filter(routine_skills.c.routine_id == routine.id).order_by(routine_skills.c.position).all()
 
-    return render_template('routine.html', skills=skills, level=level, event=event)
+    return render_template('builder.html', existing_routine=True, skills=skills, level=level, event=event, routine=routine)
 
 @routines_bp.route('/edit/<int:routine_id>')
 @login_required
@@ -197,7 +197,7 @@ def edit_routine(routine_id):
         routine_skills, Skill.id == routine_skills.c.skill_id
     ).filter(routine_skills.c.routine_id == routine.id).order_by(routine_skills.c.position).all()
 
-    return render_template('edit_routine.html', skills=skills, level=level, event=event)
+    return render_template('builder.html', existing_routine=True, skills=skills, level=level, event=event, routine=routine)
 
 @routines_bp.route('/delete/<int:routine_id>', methods=['POST'])
 @login_required
