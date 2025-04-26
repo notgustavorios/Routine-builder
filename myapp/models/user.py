@@ -26,7 +26,6 @@ class User(UserMixin, db.Model):
     
     # Relationships
     routines = db.relationship('Routine', backref='user', lazy=True)
-    teams = db.relationship('Team', backref='owner', lazy=True)
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

@@ -1,0 +1,47 @@
+.index-container {
+    min-height: calc(100vh - 300px); /* Account for navbar and footer */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+}
+
+.index-container h1 {
+    margin-bottom: 1.5rem;
+    color: var(--usa-blue);
+}
+
+.index-container p {
+    margin-bottom: 2rem;
+    font-size: 1.2rem;
+}
+
+.buttons-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    background-color: var(--usa-blue);
+    border-color: var(--usa-blue);
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--usa-red);
+    border-color: var(--usa-red);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 576px) {
+    .buttons-group {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+    }
+} 

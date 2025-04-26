@@ -2,17 +2,26 @@
 
 {% block title %}Home{% endblock %}
 
-{% block content %}
-    <h1>Welcome to Gymnastics Clips!</h1>
-    {% if current_user.is_authenticated %}
-        <p>You are logged in as {{ current_user.username }}</p>
-    {% else %}
-        <p>Please <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a></p>
-    {% endif %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='index.css') }}">
+{% endblock %}
 
-    <a href="{{ url_for('routines.build_routine') }}" class="btn btn-primary">Create a new routine</a>
-    <a href="{{ url_for('routines.view_routines') }}" class="btn btn-primary">View My Routines</a>
-    <div id="routines-container" style="margin-top: 20px;"></div>
+{% block content %}
+    <div class="index-container">
+        <h1>Welcome to Gymnastics Clips!</h1>
+        {% if current_user.is_authenticated %}
+            <p>You are logged in as {{ current_user.username }}</p>
+        {% else %}
+            <p>Please <a href="{{ url_for('auth.login') }}">login</a> or <a href="{{ url_for('auth.register') }}">register</a></p>
+        {% endif %}
+
+        <div class="buttons-group">
+            <a href="{{ url_for('routines.build_routine') }}" class="btn btn-primary">Create a new routine</a>
+            <a href="{{ url_for('routines.view_routines') }}" class="btn btn-primary">View My Routines</a>
+        </div>
+        <div id="routines-container"></div>
+    </div>
 {% endblock %}
 
 {% block scripts %}

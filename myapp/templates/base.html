@@ -158,11 +158,6 @@
                     <li class="nav-item {% if request.endpoint == 'auth.index' %}active{% endif %}">
                         <a class="nav-link" href="{{ url_for('auth.index') }}">Home</a>
                     </li>
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item {% if request.endpoint and request.endpoint.startswith('team.') %}active{% endif %}">
-                        <a class="nav-link" href="{{ url_for('team.list_teams') }}">Teams</a>
-                    </li>
-                    {% endif %}
                 </ul>
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
@@ -186,7 +181,7 @@
     </nav>
 
     <div class="content-wrapper">
-        <div class="container mt-4">
+        <div class="container-fluid">
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     {% for message in messages %}
